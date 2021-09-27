@@ -9,17 +9,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ps = require("python-shell");
 const tl = require("azure-pipelines-task-lib/task");
+const ps = require("python-shell");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputString = tl.getInput("samplestring", true);
+            /*
             if (inputString == "bad") {
                 tl.setResult(tl.TaskResult.Failed, "Bad input was given");
                 return;
             }
             console.log("Hello", inputString);
+            */
+            console.log(inputString);
             console.log(__dirname);
             console.log(__filename);
             ps.PythonShell.run("test.py", { args: ["to_print"] }, function (err, result) {

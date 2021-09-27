@@ -1,5 +1,5 @@
-import ps = require("python-shell"); 
 import tl = require("azure-pipelines-task-lib/task");
+import ps = require("python-shell"); 
 
 
 async function run() {
