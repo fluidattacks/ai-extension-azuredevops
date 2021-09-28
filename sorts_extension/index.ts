@@ -16,7 +16,7 @@ async function run() {
         console.log(__dirname);
         console.log(__filename);
         ps.PythonShell.run(
-            "test.py",
+            __dirname + "/test.py",
             {args: ["to_print"]},
             function(err, result) {
                 if (err) throw err;

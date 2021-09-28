@@ -1,9 +1,9 @@
 {
     "manifestVersion": 1,
-    "id": "sorts_extension_test",
+    "id": "sorts-extension-test",
     "name": "Sorts Extension Test",
     "version": "0.0.1",
-    "publisher": "Mario Varas",
+    "publisher": "FluidAttacks",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
@@ -29,7 +29,7 @@
                 "ms.vss-distributed-task.tasks"
             ],
             "properties": {
-                "name": "buildAndReleaseTask"
+                "name": "sorts_extension"
             }
         }
     ]

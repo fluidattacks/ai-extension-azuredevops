@@ -25,7 +25,7 @@ function run() {
             console.log(inputString);
             console.log(__dirname);
             console.log(__filename);
-            ps.PythonShell.run("test.py", { args: ["to_print"] }, function (err, result) {
+            ps.PythonShell.run(__dirname + "/test.py", { args: ["to_print"] }, function (err, result) {
                 if (err)
                     throw err;
                 console.log(result);
