@@ -15,6 +15,17 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputString = tl.getInput("samplestring", true);
+            const sourcesDirectory = tl.getInput("sourcesDirectory", true);
+            const fs = require('fs');
+            fs.readdir(sourcesDirectory, (err, files) => {
+                files.forEach((file) => {
+                    console.log(file);
+                });
+            });
+            const workingDirectory = tl.getInput("workingDirectory", true);
+            const repositoryUrl = tl.getInput("repositoryUrl", true);
+            const repositoryLocalPath = tl.getInput("repositoryLocalPath", true);
+            const pipelineWorkspace = tl.getInput("pipelineWorkspace", true);
             /*
             if (inputString == "bad") {
                 tl.setResult(tl.TaskResult.Failed, "Bad input was given");
@@ -22,10 +33,15 @@ function run() {
             }
             console.log("Hello", inputString);
             */
+            console.log(sourcesDirectory);
+            console.log(workingDirectory);
+            console.log(repositoryUrl);
+            console.log(repositoryLocalPath);
+            console.log(pipelineWorkspace);
             console.log(inputString);
             console.log(__dirname);
             console.log(__filename);
-            ps.PythonShell.run(__dirname + "/test.py", { args: ["to_print"] }, function (err, result) {
+            ps.PythonShell.run(__dirname + "/test.py", { args: ["something"] }, function (err, result) {
                 if (err)
                     throw err;
                 console.log(result);

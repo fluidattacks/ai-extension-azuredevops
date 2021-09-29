@@ -21,7 +21,47 @@
             "defaultValue": "",
             "required": true,
             "helpMarkDown": "A sample string"
-        }
+        },
+        {
+            "name": "sourcesDirectory",
+            "type": "string",
+            "label": "Sample String",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A sample string"
+        },
+        {
+            "name": "workingDirectory",
+            "type": "string",
+            "label": "Sample String",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A sample string"
+        },
+        {
+            "name": "repositoryUrl",
+            "type": "string",
+            "label": "Sample String",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A sample string"
+        },
+        {
+            "name": "repositoryLocalPath",
+            "type": "string",
+            "label": "Sample String",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A sample string"
+        },
+        {
+            "name": "pipelineWorkspace",
+            "type": "string",
+            "label": "Sample String",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A sample string"
+        },
     ],
     "execution": {
         "Node10": {
