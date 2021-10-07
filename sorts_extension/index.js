@@ -15,33 +15,64 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputString = tl.getInput("samplestring", true);
+            const buildSourceVersion = tl.getInput("buildSourceVersion", true);
             const sourcesDirectory = tl.getInput("sourcesDirectory", true);
-            const fs = require('fs');
-            fs.readdir(sourcesDirectory, (err, files) => {
-                files.forEach((file) => {
-                    console.log(file);
-                });
-            });
             const workingDirectory = tl.getInput("workingDirectory", true);
             const repositoryUrl = tl.getInput("repositoryUrl", true);
             const repositoryLocalPath = tl.getInput("repositoryLocalPath", true);
+            const stagingDirectory = tl.getInput("Build.StagingDirectory", true);
             const pipelineWorkspace = tl.getInput("pipelineWorkspace", true);
+            console.log(buildSourceVersion);
+            console.log(sourcesDirectory);
+            console.log(workingDirectory);
+            console.log(repositoryUrl);
+            console.log(repositoryLocalPath);
+            console.log(stagingDirectory);
+            console.log(pipelineWorkspace);
+            const fs = require('fs');
+            fs.readdir(workingDirectory, (err, files) => {
+                if (files != undefined) {
+                    console.log("1");
+                    files.forEach((file) => {
+                        console.log(file);
+                    });
+                }
+                else {
+                    console.log("11");
+                }
+            });
+            fs.readdir(repositoryLocalPath, (err, files) => {
+                if (files != undefined) {
+                    console.log("2");
+                    files.forEach((file) => {
+                        console.log(file);
+                    });
+                }
+                else {
+                    console.log("22");
+                }
+            });
+            fs.readdir(stagingDirectory, (err, files) => {
+                if (files != undefined) {
+                    console.log("3");
+                    files.forEach((file) => {
+                        console.log(file);
+                    });
+                }
+                else {
+                    console.log("33");
+                }
+            });
             /*
             if (inputString == "bad") {
                 tl.setResult(tl.TaskResult.Failed, "Bad input was given");
                 return;
             }
-            console.log("Hello", inputString);
             */
-            console.log(sourcesDirectory);
-            console.log(workingDirectory);
-            console.log(repositoryUrl);
-            console.log(repositoryLocalPath);
-            console.log(pipelineWorkspace);
             console.log(inputString);
             console.log(__dirname);
             console.log(__filename);
-            ps.PythonShell.run(__dirname + "/test.py", { args: ["something"] }, function (err, result) {
+            ps.PythonShell.run(__dirname + "/test.py", { args: ["something", buildSourceVersion ? buildSourceVersion : '-'] }, function (err, result) {
                 if (err)
                     throw err;
                 console.log(result);

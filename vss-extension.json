@@ -1,6 +1,6 @@
 {
     "manifestVersion": 1,
-    "id": "sorts-extensiontest",
+    "id": "sorts-extension-test",
     "name": "Sorts Extension Test",
     "version": "0.0.1",
     "publisher": "FluidAttacks",
@@ -9,7 +9,7 @@
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "Tools for building/releasing with Fabrikam. Includes one build/release task.",
+    "description": "Sorts extension for Azure DevOps",
     "categories": [
         "Azure Pipelines"
     ],
