@@ -14,13 +14,41 @@ const ps = require("python-shell");
 var xhr2 = require("xhr2");
 function httpGet(url) {
     var xmlHttp = new xhr2.XMLHttpRequest();
+    xmlHttp.addEventListener("load", function () {
+        const initialArray = JSON.parse(xmlHttp.response);
+        console.log(initialArray);
+    }, false);
     xmlHttp.open("GET", url, false);
+    xmlHttp.send();
+    /*
+    xmlHttp.onload = function (e: any) {
+        if (xmlHttp.readyState === 4) {
+            if (xmlHttp.status === 200) {
+                console.log(xmlHttp.responseText);
+            } else {
+                console.error(xmlHttp.statusText);
+            }
+        }
+    };
+    xmlHttp.onerror = function (e: any) {
+        console.error(xmlHttp.statusText);
+        console.error(e);
+    };
     xmlHttp.send(null);
+    */
     return xmlHttp.responseText;
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            ps.PythonShell.run(__dirname + "/test.py", { args: ["mvaras", "mvaras_test", "565efeeb90faaa2701b64636db487c539187c3eb"] }, function (err, result) {
+                if (err)
+                    throw err;
+                console.log(result);
+            });
+            //const res = httpGet(`https://dev.azure.com/mvaras/mvaras_test/_apis/git/repositories?api-version=6.1-preview.1`)
+            //console.log("http request");
+            //console.log(res);
             const inputString = tl.getInput("samplestring", true);
             const buildSourceVersion = tl.getInput("buildSourceVersion", true);
             const sourcesDirectory = tl.getInput("sourcesDirectory", true);
@@ -48,9 +76,11 @@ function run() {
             console.log(`collectionUri: ${collectionUri}`);
             console.log(`projectId: ${projectId}`);
             console.log(`projectName: ${projectName}`);
-            const res = httpGet(`https://dev.azure.com/mvaras/${projectName}/_apis/git/repositories?api-version=6.1-preview.1`);
-            console.log("http request");
-            console.log(res);
+            ps.PythonShell.run(__dirname + "/test.py", { args: ["mvaras", "mvaras_test", buildSourceVersion ? buildSourceVersion : '-'] }, function (err, result) {
+                if (err)
+                    throw err;
+                console.log(result);
+            });
             /*
             const fs = require('fs');
             fs.readdir(workingDirectory, (err: any, files: any) => {
@@ -84,11 +114,6 @@ function run() {
             console.log(__filename);
             */
             //const url: string = `https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/commits/${buildSourceVersion}/changes?api-version=5.0`;
-            ps.PythonShell.run(__dirname + "/test.py", { args: ["something", buildSourceVersion ? buildSourceVersion : '-'] }, function (err, result) {
-                if (err)
-                    throw err;
-                console.log(result);
-            });
         }
         catch (err) {
             tl.setResult(tl.TaskResult.Failed, err.message);
