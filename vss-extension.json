@@ -1,6 +1,6 @@
 {
     "manifestVersion": 1,
-    "id": "sortsext2",
+    "id": "sorts-extension",
     "name": "Sorts Extension Test",
     "version": "0.0.1",
     "publisher": "FluidAttacks",
