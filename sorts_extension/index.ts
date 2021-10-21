@@ -31,7 +31,7 @@ async function run() {
         console.log(`buildSourceVersion: ${buildSourceVersion}`);
         console.log(`repositoryId: ${repositoryId}`);
         console.log(`collectionId: ${collectionId}`);
-        console.log(`collectionUri: ${collectionUri}`); 
+        console.log(`collectionUri: ${collectionUri}`);
         console.log(`projectId: ${projectId}`);
         console.log(`projectName: ${projectName}`);
 

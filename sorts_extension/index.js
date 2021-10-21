@@ -14,33 +14,20 @@ const ps = require("python-shell");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            ps.PythonShell.run(__dirname + "/test.py", { args: [
-                    "mvaras" + ':' + "z4grp7xjypzkpl34r2eaeiu773aw5qath2q4rgoksxdudoppstda",
-                    "mvaras",
-                    "mvaras_test",
-                    "x",
-                    "x",
-                    "x",
-                ] }, function (err, result) {
-                if (err)
-                    throw err;
-                console.log(result);
-            }); /*
-            const azureUsername: string | undefined = tl.getInput("azureUsername", true);
-            const azureToken: string | undefined = tl.getInput("azureToken", true);
-            const buildSourceVersion: string | undefined = tl.getInput("buildSourceVersion", true);
-            const sourcesDirectory: string | undefined = tl.getInput("sourcesDirectory", true);
-            const workingDirectory: string | undefined = tl.getInput("workingDirectory", true);
-            const repositoryUrl: string | undefined = tl.getInput("repositoryUrl", true);
-            const repositoryLocalPath: string | undefined = tl.getInput("repositoryLocalPath", true);
-            const stagingDirectory: string | undefined = tl.getInput("stagingDirectory", true);
-            const pipelineWorkspace: string | undefined = tl.getInput("pipelineWorkspace", true);
-            const repositoryId: string | undefined = tl.getInput("repositoryId", true);
-            const collectionId: string | undefined = tl.getInput("collectionId", true);
-            const collectionUri: string | undefined = tl.getInput("collectionUri", true);
-            const projectId: string | undefined = tl.getInput("projectId", true);
-            const projectName: string | undefined = tl.getInput("projectName", true);
-    
+            const azureUsername = tl.getInput("azureUsername", true);
+            const azureToken = tl.getInput("azureToken", true);
+            const buildSourceVersion = tl.getInput("buildSourceVersion", true);
+            const sourcesDirectory = tl.getInput("sourcesDirectory", true);
+            const workingDirectory = tl.getInput("workingDirectory", true);
+            const repositoryUrl = tl.getInput("repositoryUrl", true);
+            const repositoryLocalPath = tl.getInput("repositoryLocalPath", true);
+            const stagingDirectory = tl.getInput("stagingDirectory", true);
+            const pipelineWorkspace = tl.getInput("pipelineWorkspace", true);
+            const repositoryId = tl.getInput("repositoryId", true);
+            const collectionId = tl.getInput("collectionId", true);
+            const collectionUri = tl.getInput("collectionUri", true);
+            const projectId = tl.getInput("projectId", true);
+            const projectName = tl.getInput("projectName", true);
             console.log("general debugging");
             console.log(sourcesDirectory);
             console.log(workingDirectory);
@@ -48,7 +35,6 @@ function run() {
             console.log(repositoryLocalPath);
             console.log(stagingDirectory);
             console.log(pipelineWorkspace);
-    
             console.log("request vars");
             console.log(`buildSourceVersion: ${buildSourceVersion}`);
             console.log(`repositoryId: ${repositoryId}`);
@@ -56,7 +42,18 @@ function run() {
             console.log(`collectionUri: ${collectionUri}`);
             console.log(`projectId: ${projectId}`);
             console.log(`projectName: ${projectName}`);
-    */
+            ps.PythonShell.run(__dirname + "/test.py", { args: [
+                    azureUsername + ':' + azureToken,
+                    "mvaras",
+                    "mvaras_test",
+                    buildSourceVersion ? buildSourceVersion : '-',
+                    repositoryUrl ? repositoryUrl : '-',
+                    repositoryLocalPath ? repositoryLocalPath : '.',
+                ] }, function (err, result) {
+                if (err)
+                    throw err;
+                console.log(result);
+            });
         }
         catch (err) {
             tl.setResult(tl.TaskResult.Failed, err.message);
