@@ -1,4 +1,7 @@
-from typing import List, Tuple
+from typing import (
+    List,
+    Tuple,
+)
 import sys
 import subprocess
 import os
@@ -6,7 +9,9 @@ import requests
 import base64
 import urllib.request
 import git
-from git.cmd import Git
+from git.cmd import (
+    Git,
+)
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -104,20 +109,25 @@ if __name__ == "__main__":
     commit_id = sys.argv[4]
     repo_url = sys.argv[5]
     repo_local_url = sys.argv[6]
-    print("git test")
-    print(repo_local_url)
-    get_repositories_log(repo_local_url)
-    predict_df = get_subscription_files_df(repo_local_url)
-    """
+
     repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"
     repository_id = get_repository_id(repository_url)
 
     commit_info_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
-    get_commit_files_paths(commit_info_url)
+    paths = get_commit_files_paths(commit_info_url)
 
     commit_files_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
-    get_commit_files(commit_files_url, [path])
+    get_commit_files(commit_files_url, paths)
 
+    print(f"Current commit contains {len(paths)} files")
+    print(paths)
+
+    print("git test")
+    print(repo_local_url)
+    get_repositories_log(repo_local_url)
+    predict_df = get_subscription_files_df(repo_local_url)
+
+    """
     file_name = f"resp_text.{str(path.split('.')[-1])}"
     print(f"check file: {file_name}")
     with open(file_name, "r") as file:
