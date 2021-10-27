@@ -135,6 +135,7 @@ def build_results_csv(
         len(result_df),
     )
     result_df["prob_vuln"] = round(result_df.prob_vuln * 100 - error, 1)
+    result_df["file"] = result_df["file"].split("/")[-1]
     sorted_files: DataFrame = (
         result_df[result_df.prob_vuln >= 0]
         .sort_values(by="prob_vuln", ascending=False)
@@ -176,37 +177,25 @@ if __name__ == "__main__":
     repo_url = sys.argv[5]
     repo_local_url = sys.argv[6]
 
+    # Make API calls
     repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"
     repository_id = get_repository_id(repository_url)
 
     commit_info_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
     items = get_commit_files_paths(commit_info_url)
-    print(f"Current commit contains {len(items)} files")
-    print(items)
 
     paths = [item["item"]["path"] for item in items]
     commit_files_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
     get_commit_files(commit_files_url, paths)
 
-    """
-    item = paths[0]
-    print(f"check file: {item}")
-    with open(item.split("/")[-1], "r") as file:
-        print(file.read())
-    """
-    print("git test")
+    # Prepare Sorts
     get_repositories_log(repo_local_url)
     files_df = get_subscription_files_df(repo_local_url)
-    print(files_df)
-    print(extract_features(files_df))
-    print(files_df)
     extensions: List[str] = get_extensions_list()
     num_bits: int = len(extensions).bit_length()
-    print(num_bits)
-    print(files_df.head())
-    print(files_df.columns.values.tolist())
 
-    print("predict_vuln_prob")
+    # Execute Sorts
+    print("Sorts results")
     results_file_name = "sorts_results_file.csv"
     predict_vuln_prob(
         files_df,
