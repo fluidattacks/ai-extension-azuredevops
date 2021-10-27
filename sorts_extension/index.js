@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tl = require("azure-pipelines-task-lib/task");
 const ps = require("python-shell");
 function local_test() {
-    ps.PythonShell.run(__dirname + "/test.py", { args: [
+    ps.PythonShell.run(__dirname + "/entrypoint.py", { args: [
             "x:lavp62d662jpepcc725nkvdmm6eoawmlqrvjy7rvjgjxw5gu7ybq",
             "mvaras",
             "mvaras_test",
@@ -25,7 +25,6 @@ function local_test() {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            local_test();
             const azureUsername = tl.getInput("azureUsername", true);
             const azureToken = tl.getInput("azureToken", true);
             const buildSourceVersion = tl.getInput("buildSourceVersion", true);
@@ -54,7 +53,7 @@ function run() {
             console.log(`collectionUri: ${collectionUri}`);
             console.log(`projectId: ${projectId}`);
             console.log(`projectName: ${projectName}`);
-            ps.PythonShell.run(__dirname + "/test.py", { args: [
+            ps.PythonShell.run(__dirname + "/sorts/entrypoint.py", { args: [
                     azureUsername + ':' + azureToken,
                     "mvaras",
                     "mvaras_test",

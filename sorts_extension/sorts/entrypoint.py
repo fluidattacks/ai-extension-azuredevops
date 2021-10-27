@@ -1,343 +1,216 @@
-from category_encoders import (
-    BinaryEncoder,
+from typing import (
+    List,
+    Tuple,
 )
-from cryptography.fernet import (
-    Fernet,
+from joblib import (
+    load,
 )
-from numpy import (
-    ndarray,
+from prettytable import (
+    from_csv,
+    PrettyTable,
 )
+import sys
+import subprocess
+import os
+import requests
+import base64
+import urllib.request
 import git
 from git.cmd import (
     Git,
 )
-from git.exc import (
-    GitCommandError,
-    GitCommandNotFound,
-)
-from datetime import (
-    datetime,
-)
-from functools import (
-    partial,
-)
-import os
-import re
 import pandas as pd
 from pandas import (
     DataFrame,
-    Series,
 )
-import pytz  # type: ignore
-import tempfile
-import time
-from tqdm import (
-    tqdm,
+from file import (
+    extract_features,
+    get_extensions_list,
 )
-from typing import (
-    List,
-    NamedTuple,
-    Set,
-    Tuple,
+from numpy import (
+    ndarray,
 )
-from typing_extensions import TypedDict
-
-FILE_FEATURES = [
-    "num_commits",
-    "num_unique_authors",
-    "file_age",
-    "midnight_commits",
-    "risky_commits",
-    "seldom_contributors",
-    "num_lines",
-    "commit_frequency",
-    "busy_file",
-    "extension",
-]
+import numpy as np
 
 
-class GitMetrics(TypedDict):
-    author_email: List[str]
-    commit_hash: List[str]
-    date_iso_format: List[str]
-    stats: List[str]
+USERPASS = sys.argv[1]
 
 
-class FileFeatures(NamedTuple):
-    num_commits: int
-    num_unique_authors: int
-    file_age: int
-    midnight_commits: int
-    risky_commits: int
-    seldom_contributors: int
-    num_lines: int
-    commit_frequency: float
-    busy_file: int
-    extension: str
+def http_get(url: str, return_json: bool = True) -> str:
+    b64 = base64.b64encode(USERPASS.encode()).decode()
+    headers = {"Authorization" : "Basic %s" % b64}
+    response = requests.get(url=url, headers=headers)
+
+    return response.json() if return_json else response.text
 
 
-def get_extensions_list() -> List[str]:
-    extensions: List[str] = []    
-    with open(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "extensions.lst"),
-        "r",
-        encoding="utf8",
-    ) as file:
-        extensions = [line.rstrip() for line in file]
-
-    return extensions
+def get_commit_files(url: str, file_paths: List[str]) -> None:
+    for path in file_paths:
+        url = url.replace("$path", path)
+        response = http_get(url, return_json=False)
+        file_name = path.split("/")[-1]
+        with open(file_name, "w") as file:
+            file.write(response)
 
 
-def get_log_file_metrics(logs_dir: str, repo: str, file: str) -> GitMetrics:
-    git_metrics: GitMetrics = GitMetrics(
-        author_email=[], commit_hash=[], date_iso_format=[], stats=[]
-    )
-    cursor: str = ""
-    with open(
-        f"{repo}.log",
-        "r",
-        encoding="utf8",
-    ) as log_file:
-        for line in log_file:
-            # An empty line marks the start of a new commit diff
-            if not line.strip("\n"):
-                cursor = "info"
-                continue
-            # Next, there is a line with the format 'Hash,Author,Date'
-            if cursor == "info":
-                info: List[str] = line.strip("\n").split(",")
-                commit: str = info[0]
-                author: str = info[1]
-                date: str = info[2]
-                cursor = "diff"
-                continue
-            # Next, there is a list of changed files and the changed lines
-            # with the format 'Additions    Deletions   File'
-            if cursor == "diff":
-                changed_name: bool = False
-                # Keeps track of the file if its name was changed
-                if "=>" in line:
-                    match = re.match(
-                        RENAME_REGEX, line.strip("\n").split("\t")[2]
-                    )
-                    if match:
-                        path_info: Dict[str, str] = match.groupdict()
-                        if file == (
-                            f'{path_info["pre_path"]}{path_info["new_name"]}'
-                            f'{path_info["post_path"]}'
-                        ):
-                            changed_name = True
-                            file = (
-                                f'{path_info["pre_path"]}'
-                                f'{path_info["old_name"]}'
-                                f'{path_info["post_path"]}'
-                            )
-                if file in line or changed_name:
-                    git_metrics["author_email"].append(author)
-                    git_metrics["commit_hash"].append(commit)
-                    git_metrics["date_iso_format"].append(date)
+def get_repository_id(url: str) -> str:
+    response = http_get(url)
 
-                    stats: List[str] = line.strip("\n").split("\t")
-                    git_metrics["stats"].append(
-                        f"1 file changed, {stats[0]} insertions (+), "
-                        f"{stats[1]} deletions (-)"
-                    )
-
-    return git_metrics
+    return response["value"][0]["id"]
 
 
-def get_features(row: Series, logs_dir: str) -> FileFeatures:
-    # Use -1 as default value to avoid ZeroDivisionError
-    file_age: int = -1
-    midnight_commits: int = -1
-    num_commits: int = -1
-    num_lines: int = -1
-    risky_commits: int = -1
-    seldom_contributors: int = -1
-    unique_authors: List[str] = []
-    extension: str = ""
-    
-    repo_path: str = row["repo"]
-    repo_name: str = os.path.basename(repo_path)
-    file_relative: str = row["file"].replace(f"{repo_name}/", "", 1)
-    git_metrics: GitMetrics = get_log_file_metrics(
-        logs_dir, repo_name, file_relative
-    )
-    file_age = get_file_age(git_metrics)
-    midnight_commits = get_midnight_commits(git_metrics)
-    num_commits = get_num_commits(git_metrics)
-    num_lines = get_num_lines(os.path.join(repo_path, file_relative))
-    risky_commits = get_risky_commits(git_metrics)
-    seldom_contributors = get_seldom_contributors(git_metrics)
-    unique_authors = get_unique_authors(git_metrics)
-    extension = file_relative.split(".")[-1].lower()
+def get_commit_files_paths(url) -> List[str]:
+    response = http_get(url)
+    print(response["changes"])
 
-    return FileFeatures(
-        num_commits=num_commits,
-        num_unique_authors=len(unique_authors),
-        file_age=file_age,
-        midnight_commits=midnight_commits,
-        risky_commits=risky_commits,
-        seldom_contributors=seldom_contributors,
-        num_lines=num_lines,
-        commit_frequency=(
-            round(num_commits / file_age, 4) if file_age else num_commits
-        ),
-        busy_file=1 if len(unique_authors) > 9 else 0,
-        extension=extension,
-    )
+    return response["changes"]
 
 
-def get_file_age(git_metrics: GitMetrics) -> int:
-    today: datetime = datetime.now(pytz.utc)
-    commit_date_history: List[str] = git_metrics["date_iso_format"]
-    file_creation_date: str = commit_date_history[-1]
-
-    return (today - datetime.fromisoformat(file_creation_date)).days
-
-
-def get_num_commits(git_metrics: GitMetrics) -> int:
-    commit_history: List[str] = git_metrics["commit_hash"]
-
-    return len(commit_history)
+def get_repositories_log(repo_path: str) -> None:
+    git_repo: Git = git.Git(repo_path)
+    git_log: str = git_repo.log(
+        "--no-merges", "--numstat", "--pretty=%n%H,%ae,%aI%n"
+    ).replace("\n\n\n", "\n")
+    with open(f"{os.path.basename(repo_path)}.log", "w", encoding="utf8") as log_file:
+        log_file.write(git_log)
+    print(git_log)
 
 
-def get_num_lines(file_path: str) -> int:
-    result: int = 0
-    with open(file_path, "rb") as file:
-        bufgen = iter(
-            partial(file.raw.read, 1024 * 1024), b""  # type: ignore
+def read_allowed_names() -> Tuple[List[str], ...]:
+    allowed_names: List[List[str]] = []
+    for name in ["extensions.lst", "composites.lst"]:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), name)) as file:
+            content_as_list = file.read().split("\n")
+            allowed_names.append(list(filter(None, content_as_list)))
+
+    return (allowed_names[0], allowed_names[1])
+
+
+def get_subscription_files_df(repository_path: str) -> DataFrame:
+    print("get_subscription_files_df")
+    files: List[str] = []
+    extensions, composites = read_allowed_names()
+    ignore_dirs: List[str] = [".git"]
+    repo_files = [
+        os.path.join(path, filename).replace(
+            f"{os.path.dirname(repository_path)}/", ""
         )
-        result = sum(buf.count(b"\n") for buf in bufgen)
-
-    return result
-
-
-def get_midnight_commits(git_metrics: GitMetrics) -> int:
-    commit_date_history: List[str] = git_metrics["date_iso_format"]
-    commit_hour_history: List[int] = [
-        datetime.fromisoformat(date).hour for date in commit_date_history
+        for path, _, files in os.walk(repository_path)
+        for filename in files
+        if all(  # pylint: disable=use-a-generator
+            [dir_ not in path for dir_ in ignore_dirs]
+        )
     ]
 
-    return sum([1 for hour in commit_hour_history if 0 <= hour < 6])
-
-
-def get_risky_commits(git_metrics: GitMetrics) -> int:
-    risky_commits: int = 0
-    commit_stat_history: List[str] = git_metrics["stats"]
-    for stat in commit_stat_history:
-        insertions, deletions = parse_git_shortstat(stat.replace("--", ", "))
-        if insertions + deletions > 200:
-            risky_commits += 1
-
-    return risky_commits
-
-
-def get_seldom_contributors(git_metrics: GitMetrics) -> int:
-    seldom_contributors: int = 0
-    authors_history: List[str] = git_metrics["author_email"]
-    unique_authors: Set[str] = set(authors_history)
-    avg_commit_per_author: float = round(
-        len(authors_history) / len(unique_authors), 4
+    allowed_files = list(
+        filter(
+            lambda ext: (
+                ext in composites or ext.split(".")[-1].lower() in extensions
+            ),
+            repo_files,
+        )
     )
-    for author in unique_authors:
-        commits: int = authors_history.count(author)
-        if commits < avg_commit_per_author:
-            seldom_contributors += 1
 
-    return seldom_contributors
+    files_df: DataFrame = pd.DataFrame(allowed_files, columns=["file"])
+    files_df["repo"] = repository_path
+    files_df["is_vuln"] = 0
 
-
-def get_unique_authors(git_metrics: GitMetrics) -> List[str]:
-    authors_history: List[str] = list(set(git_metrics["author_email"]))
-    authors_history_names: List[str] = [
-        author.split("@")[0] for author in authors_history
-    ]
-    for index, author_name in enumerate(authors_history_names):
-        if authors_history_names.count(author_name) > 1:
-            del authors_history[index]
-            del authors_history_names[index]
-
-    return authors_history
+    return files_df
 
 
-def encrypt_column_values(value: str) -> str:
-    fernet = Fernet(Fernet.generate_key())
-
-    return fernet.encrypt(value.encode()).decode()
-
-
-def parse_git_shortstat(stat: str) -> Tuple[int, int]:
-    stat_regex: re.Pattern = re.compile(
-        r"([0-9]+ files? changed)?"
-        r"(, (?P<insertions>[0-9]+) insertions\(\+\))?"
-        r"(, (?P<deletions>[0-9]+) deletions\(\-\))?"
+def build_results_csv(
+    predictions: ndarray, predict_df: DataFrame, csv_name: str
+) -> None:
+    scope: str = csv_name.split(".")[0].split("_")[-1]
+    result_df: DataFrame = pd.concat(
+        [
+            predict_df[[scope]],
+            pd.DataFrame(
+                predictions, columns=["pred", "prob_safe", "prob_vuln"]
+            ),
+        ],
+        axis=1,
     )
-    insertions: int = 0
-    deletions: int = 0
-    match = re.match(stat_regex, stat.strip())
-    if match:
-        groups: Dict[str, str] = match.groupdict()
-        if groups["insertions"]:
-            insertions = int(groups["insertions"])
-        if groups["deletions"]:
-            deletions = int(groups["deletions"])
+    error: float = 5 + 5 * np.random.rand(
+        len(result_df),
+    )
+    result_df["prob_vuln"] = round(result_df.prob_vuln * 100 - error, 1)
+    sorted_files: DataFrame = (
+        result_df[result_df.prob_vuln >= 0]
+        .sort_values(by="prob_vuln", ascending=False)
+        .reset_index(drop=True)[[scope, "prob_vuln"]]
+    )
+    sorted_files.to_csv(csv_name, index=False)
 
-    return insertions, deletions
+
+def predict_vuln_prob(
+    predict_df: DataFrame, features: List[str], csv_name: str
+) -> None:
+    model = load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model.joblib"))
+    input_data = predict_df[model.feature_names + features]
+    probability_prediction: ndarray = model.predict_proba(input_data)
+    class_prediction: ndarray = model.predict(input_data)
+    merged_predictions: ndarray = np.column_stack(
+        [class_prediction, probability_prediction]
+    )
+
+    build_results_csv(merged_predictions, predict_df, csv_name)
 
 
-def encode_extensions(training_df: DataFrame) -> None:
+def display_results(csv_name: str) -> None:
+    scope: str = csv_name.split(".")[0].split("_")[-1]
+    with open(csv_name, "r", encoding="utf8") as csv_file:
+        table = from_csv(
+            csv_file, field_names=[scope, "prob_vuln"], delimiter=","
+        )
+    table.align[scope] = "l"
+    table._max_width = {scope: 120, "prob_vuln": 10}
+
+    print(table.get_string(start=1, end=20))
+
+
+if __name__ == "__main__":
+    organization = sys.argv[2]
+    project_name = sys.argv[3]
+    commit_id = sys.argv[4]
+    repo_url = sys.argv[5]
+    repo_local_url = sys.argv[6]
+
+    repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"
+    repository_id = get_repository_id(repository_url)
+
+    commit_info_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
+    items = get_commit_files_paths(commit_info_url)
+    print(f"Current commit contains {len(items)} files")
+    print(items)
+
+    paths = [item["item"]["path"] for item in items]
+    commit_files_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
+    get_commit_files(commit_files_url, paths)
+
+    """
+    item = paths[0]
+    print(f"check file: {item}")
+    with open(item.split("/")[-1], "r") as file:
+        print(file.read())
+    """
+    print("git test")
+    get_repositories_log(repo_local_url)
+    files_df = get_subscription_files_df(repo_local_url)
+    print(files_df)
+    print(extract_features(files_df))
+    print(files_df)
     extensions: List[str] = get_extensions_list()
-    extensions_df: DataFrame = pd.DataFrame(extensions, columns=["extension"])
-    encoder: BinaryEncoder = BinaryEncoder(cols=["extension"], return_df=True)
-    encoder.fit(extensions_df)
-    encoded_extensions = encoder.transform(training_df[["extension"]])
-    encoded_extensions.insert(0, "extension_10", 0)
-    cols = encoded_extensions.columns.tolist()
-    cols.insert(11, cols.pop(0))
-    training_df[cols] = encoded_extensions.values.tolist()
+    num_bits: int = len(extensions).bit_length()
+    print(num_bits)
+    print(files_df.head())
+    print(files_df.columns.values.tolist())
 
-
-def format_dataset(training_df: DataFrame) -> DataFrame:
-    training_df.drop(
-        training_df[training_df["file_age"] == -1].index, inplace=True
+    print("predict_vuln_prob")
+    results_file_name = "sorts_results_file.csv"
+    predict_vuln_prob(
+        files_df,
+        [f"extension_{num}" for num in range(num_bits + 1)],
+        results_file_name,
     )
-    training_df.reset_index(inplace=True, drop=True)
-    encode_extensions(training_df)
-
-    return training_df
-
-
-def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
-    for repo_path in repos_paths:
-        repo: str = os.path.basename(repo_path)
-        git_repo: Git = git.Git(repo_path)
-        git_log: str = git_repo.log(
-            "--no-merges", "--numstat", "--pretty=%n%H,%ae,%aI%n"
-        ).replace("\n\n\n", "\n")
-        with open(f"repo.log", "w", encoding="utf8") as log_file:
-            log_file.write(git_log)
-
-
-def extract_features(training_df: DataFrame) -> bool:
-    """Extract features from the file Git history and add them to the DF"""
-    success: bool = True
-    try:
-        timer: float = time.time()
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            get_repositories_log(tmp_dir, training_df["repo"].unique())
-            tqdm.pandas()
-            print("extract_features")
-            print(training_df.columns.values.tolist())
-            # Get features into dataset
-            training_df[FILE_FEATURES] = training_df.progress_apply(
-                get_features, args=(tmp_dir,), axis=1, result_type="expand"
-            )
-            print(training_df.columns.values.tolist())
-            format_dataset(training_df)
-            print(training_df.columns.values.tolist())
-    except BaseException as e:
-        print("extract_features exception")
-        print(e)
-
-    return success
+    display_results(results_file_name)
