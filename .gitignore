@@ -1,3 +1,4 @@
 sorts_extension/node_modules
 *.vsix
 npm-debug.log
+__pycache__/

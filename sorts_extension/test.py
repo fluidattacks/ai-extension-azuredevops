@@ -2,6 +2,13 @@ from typing import (
     List,
     Tuple,
 )
+from joblib import (
+    load,
+)
+from prettytable import (
+    from_csv,
+    PrettyTable,
+)
 import sys
 import subprocess
 import os
@@ -16,13 +23,22 @@ import pandas as pd
 from pandas import (
     DataFrame,
 )
+from file import (
+    extract_features,
+    get_extensions_list,
+)
+from numpy import (
+    ndarray,
+)
+import numpy as np
+
 
 USERPASS = sys.argv[1]
 
 
 def http_get(url: str, return_json: bool = True) -> str:
     b64 = base64.b64encode(USERPASS.encode()).decode()
-    headers = {"Authorization" : "Basic %s" % b64} 
+    headers = {"Authorization" : "Basic %s" % b64}
     response = requests.get(url=url, headers=headers)
 
     return response.json() if return_json else response.text
@@ -32,7 +48,7 @@ def get_commit_files(url: str, file_paths: List[str]) -> None:
     for path in file_paths:
         url = url.replace("$path", path)
         response = http_get(url, return_json=False)
-        file_name = f"resp_text.{str(path.split('.')[-1])}"
+        file_name = path.split("/")[-1]
         with open(file_name, "w") as file:
             file.write(response)
 
@@ -45,8 +61,9 @@ def get_repository_id(url: str) -> str:
 
 def get_commit_files_paths(url) -> List[str]:
     response = http_get(url)
+    print(response["changes"])
 
-    return response["changes"][0]["item"]["path"]
+    return response["changes"]
 
 
 def get_repositories_log(repo_path: str) -> None:
@@ -84,7 +101,7 @@ def get_subscription_files_df(repository_path: str) -> DataFrame:
             [dir_ not in path for dir_ in ignore_dirs]
         )
     ]
-    print(repo_files)
+
     allowed_files = list(
         filter(
             lambda ext: (
@@ -93,14 +110,63 @@ def get_subscription_files_df(repository_path: str) -> DataFrame:
             repo_files,
         )
     )
-    print(allowed_files)
+
     files_df: DataFrame = pd.DataFrame(allowed_files, columns=["file"])
-    files_df["repo"] = files_df["file"].apply(
-        lambda x: os.path.join(repository_path, x.split("/")[0])
-    )
-    print(files_df)
+    files_df["repo"] = repository_path
+    files_df["is_vuln"] = 0
 
     return files_df
+
+
+def build_results_csv(
+    predictions: ndarray, predict_df: DataFrame, csv_name: str
+) -> None:
+    scope: str = csv_name.split(".")[0].split("_")[-1]
+    result_df: DataFrame = pd.concat(
+        [
+            predict_df[[scope]],
+            pd.DataFrame(
+                predictions, columns=["pred", "prob_safe", "prob_vuln"]
+            ),
+        ],
+        axis=1,
+    )
+    error: float = 5 + 5 * np.random.rand(
+        len(result_df),
+    )
+    result_df["prob_vuln"] = round(result_df.prob_vuln * 100 - error, 1)
+    sorted_files: DataFrame = (
+        result_df[result_df.prob_vuln >= 0]
+        .sort_values(by="prob_vuln", ascending=False)
+        .reset_index(drop=True)[[scope, "prob_vuln"]]
+    )
+    sorted_files.to_csv(csv_name, index=False)
+
+
+def predict_vuln_prob(
+    predict_df: DataFrame, features: List[str], csv_name: str
+) -> None:
+    model = load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model.joblib"))
+    input_data = predict_df[model.feature_names + features]
+    probability_prediction: ndarray = model.predict_proba(input_data)
+    class_prediction: ndarray = model.predict(input_data)
+    merged_predictions: ndarray = np.column_stack(
+        [class_prediction, probability_prediction]
+    )
+
+    build_results_csv(merged_predictions, predict_df, csv_name)
+
+
+def display_results(csv_name: str) -> None:
+    scope: str = csv_name.split(".")[0].split("_")[-1]
+    with open(csv_name, "r", encoding="utf8") as csv_file:
+        table = from_csv(
+            csv_file, field_names=[scope, "prob_vuln"], delimiter=","
+        )
+    table.align[scope] = "l"
+    table._max_width = {scope: 120, "prob_vuln": 10}
+
+    print(table.get_string(start=1, end=20))
 
 
 if __name__ == "__main__":
@@ -109,27 +175,42 @@ if __name__ == "__main__":
     commit_id = sys.argv[4]
     repo_url = sys.argv[5]
     repo_local_url = sys.argv[6]
-
+    
     repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"
     repository_id = get_repository_id(repository_url)
 
     commit_info_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
-    paths = get_commit_files_paths(commit_info_url)
+    items = get_commit_files_paths(commit_info_url)
+    print(f"Current commit contains {len(items)} files")
+    print(items)
 
+    paths = [item["item"]["path"] for item in items]
     commit_files_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
     get_commit_files(commit_files_url, paths)
 
-    print(f"Current commit contains {len(paths)} files")
-    print(paths)
-
+    """
+    item = paths[0]
+    print(f"check file: {item}")
+    with open(item.split("/")[-1], "r") as file:
+        print(file.read())
+    """
     print("git test")
-    print(repo_local_url)
     get_repositories_log(repo_local_url)
-    predict_df = get_subscription_files_df(repo_local_url)
+    files_df = get_subscription_files_df(repo_local_url)
+    print(files_df)
+    print(extract_features(files_df))
+    print(files_df)
+    extensions: List[str] = get_extensions_list()
+    num_bits: int = len(extensions).bit_length()
+    print(num_bits)
+    print(files_df.head())
+    print(files_df.columns.values.tolist())
 
-    """
-    file_name = f"resp_text.{str(path.split('.')[-1])}"
-    print(f"check file: {file_name}")
-    with open(file_name, "r") as file:
-            print(file.read())
-    """
+    print("predict_vuln_prob")
+    results_file_name = "sorts_results_file.csv"
+    predict_vuln_prob(
+        files_df,
+        [f"extension_{num}" for num in range(num_bits + 1)],
+        results_file_name,
+    )
+    display_results(results_file_name)

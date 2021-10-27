@@ -11,9 +11,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const tl = require("azure-pipelines-task-lib/task");
 const ps = require("python-shell");
+function local_test() {
+    ps.PythonShell.run(__dirname + "/test.py", { args: [
+            "x:lavp62d662jpepcc725nkvdmm6eoawmlqrvjy7rvjgjxw5gu7ybq",
+            "mvaras",
+            "mvaras_test",
+        ] }, function (err, result) {
+        if (err)
+            throw err;
+        console.log(result);
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            local_test();
             const azureUsername = tl.getInput("azureUsername", true);
             const azureToken = tl.getInput("azureToken", true);
             const buildSourceVersion = tl.getInput("buildSourceVersion", true);

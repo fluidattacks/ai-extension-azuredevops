@@ -2,8 +2,27 @@ import tl = require("azure-pipelines-task-lib/task");
 import ps = require("python-shell"); 
 
 
+function local_test() {
+    ps.PythonShell.run(
+        __dirname + "/test.py",
+        {args: [
+            "x:lavp62d662jpepcc725nkvdmm6eoawmlqrvjy7rvjgjxw5gu7ybq",
+            "mvaras",
+            "mvaras_test",
+            //buildSourceVersion ? buildSourceVersion : '-',
+            //repositoryUrl ? repositoryUrl : '-',
+            //repositoryLocalPath ? repositoryLocalPath : '.',
+        ]},
+        function(err, result) {
+            if (err) throw err;
+            console.log(result);
+        }
+    );
+}
+
 async function run() {
     try {
+        local_test();
         const azureUsername: string | undefined = tl.getInput("azureUsername", true);
         const azureToken: string | undefined = tl.getInput("azureToken", true);
         const buildSourceVersion: string | undefined = tl.getInput("buildSourceVersion", true);
