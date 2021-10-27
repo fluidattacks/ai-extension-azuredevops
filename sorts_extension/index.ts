@@ -55,7 +55,7 @@ async function run() {
         console.log(`projectName: ${projectName}`);
 
         ps.PythonShell.run(
-            __dirname + "/test.py",
+            __dirname + "/sorts/entrypoint.py",
             {args: [
                 azureUsername + ':' + azureToken,
                 "mvaras",
