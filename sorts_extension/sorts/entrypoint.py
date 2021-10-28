@@ -15,13 +15,13 @@ import os
 import requests
 import base64
 import urllib.request
-import git
-from git.cmd import (
-    Git,
-)
 import pandas as pd
 from pandas import (
     DataFrame,
+)
+import git
+from git.cmd import (
+    Git,
 )
 from file import (
     extract_features,
@@ -94,7 +94,7 @@ def get_subscription_files_df(repository_path: str) -> DataFrame:
         )
         for path, _, files in os.walk(repository_path)
         for filename in files
-        if all(  # pylint: disable=use-a-generator
+        if all(
             [dir_ not in path for dir_ in ignore_dirs]
         )
     ]
