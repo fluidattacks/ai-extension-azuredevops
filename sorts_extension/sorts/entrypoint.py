@@ -61,7 +61,6 @@ def get_repository_id(url: str) -> str:
 
 def get_commit_files_paths(url) -> List[str]:
     response = http_get(url)
-    print(response["changes"])
 
     return response["changes"]
 
@@ -73,7 +72,6 @@ def get_repositories_log(repo_path: str) -> None:
     ).replace("\n\n\n", "\n")
     with open(f"{os.path.basename(repo_path)}.log", "w", encoding="utf8") as log_file:
         log_file.write(git_log)
-    print(git_log)
 
 
 def read_allowed_names() -> Tuple[List[str], ...]:
@@ -87,7 +85,6 @@ def read_allowed_names() -> Tuple[List[str], ...]:
 
 
 def get_subscription_files_df(repository_path: str) -> DataFrame:
-    print("get_subscription_files_df")
     files: List[str] = []
     extensions, composites = read_allowed_names()
     ignore_dirs: List[str] = [".git"]
@@ -135,12 +132,13 @@ def build_results_csv(
         len(result_df),
     )
     result_df["prob_vuln"] = round(result_df.prob_vuln * 100 - error, 1)
-    result_df["file"] = result_df["file"].split("/")[-1]
     sorted_files: DataFrame = (
         result_df[result_df.prob_vuln >= 0]
         .sort_values(by="prob_vuln", ascending=False)
         .reset_index(drop=True)[[scope, "prob_vuln"]]
     )
+    sorted_files["file"] = sorted_files["file"].apply(lambda item: item.split("/")[-1])
+    sorted_files["prob_vuln"] = sorted_files["file"].apply(lambda item: f"{item} %")
     sorted_files.to_csv(csv_name, index=False)
 
 
@@ -193,13 +191,17 @@ if __name__ == "__main__":
     files_df = get_subscription_files_df(repo_local_url)
     extensions: List[str] = get_extensions_list()
     num_bits: int = len(extensions).bit_length()
+    extract_features(files_df)
 
     # Execute Sorts
     print("Sorts results")
-    results_file_name = "sorts_results_file.csv"
-    predict_vuln_prob(
-        files_df,
-        [f"extension_{num}" for num in range(num_bits + 1)],
-        results_file_name,
-    )
-    display_results(results_file_name)
+    if not files_df.empty:
+        results_file_name = "sorts_results_file.csv"
+        predict_vuln_prob(
+            files_df,
+            [f"extension_{num}" for num in range(num_bits + 1)],
+            results_file_name,
+        )
+        display_results(results_file_name)
+    else:
+        print("No files in current commit: dataframe is empty")
