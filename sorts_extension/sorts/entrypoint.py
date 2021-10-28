@@ -23,15 +23,18 @@ import git
 from git.cmd import (
     Git,
 )
-from file import (
-    extract_features,
-    get_extensions_list,
-)
 from numpy import (
     ndarray,
 )
 import numpy as np
 
+from file import (
+    extract_features,
+    get_extensions_list,
+)
+from utils import (
+    get_path,
+)
 
 USERPASS = sys.argv[1]
 
@@ -77,7 +80,7 @@ def get_repositories_log(repo_path: str) -> None:
 def read_allowed_names() -> Tuple[List[str], ...]:
     allowed_names: List[List[str]] = []
     for name in ["extensions.lst", "composites.lst"]:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), name)) as file:
+        with open(get_path(name)) as file:
             content_as_list = file.read().split("\n")
             allowed_names.append(list(filter(None, content_as_list)))
 
@@ -138,14 +141,14 @@ def build_results_csv(
         .reset_index(drop=True)[[scope, "prob_vuln"]]
     )
     sorted_files["file"] = sorted_files["file"].apply(lambda item: item.split("/")[-1])
-    sorted_files["prob_vuln"] = sorted_files["file"].apply(lambda item: f"{item} %")
+    sorted_files["prob_vuln"] = sorted_files["prob_vuln"].apply(lambda item: f"{item}%")
     sorted_files.to_csv(csv_name, index=False)
 
 
 def predict_vuln_prob(
     predict_df: DataFrame, features: List[str], csv_name: str
 ) -> None:
-    model = load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model.joblib"))
+    model = load(get_path("model.joblib"))
     input_data = predict_df[model.feature_names + features]
     probability_prediction: ndarray = model.predict_proba(input_data)
     class_prediction: ndarray = model.predict(input_data)

@@ -40,49 +40,18 @@ from typing import (
     Set,
     Tuple,
 )
-from typing_extensions import TypedDict
 
-FILE_FEATURES = [
-    "num_commits",
-    "num_unique_authors",
-    "file_age",
-    "midnight_commits",
-    "risky_commits",
-    "seldom_contributors",
-    "num_lines",
-    "commit_frequency",
-    "busy_file",
-    "extension",
-]
-
-
-class GitMetrics(TypedDict):
-    author_email: List[str]
-    commit_hash: List[str]
-    date_iso_format: List[str]
-    stats: List[str]
-
-
-class FileFeatures(NamedTuple):
-    num_commits: int
-    num_unique_authors: int
-    file_age: int
-    midnight_commits: int
-    risky_commits: int
-    seldom_contributors: int
-    num_lines: int
-    commit_frequency: float
-    busy_file: int
-    extension: str
+from utils import (
+    FILE_FEATURES,
+    FileFeatures,
+    get_path,
+    GitMetrics,
+)
 
 
 def get_extensions_list() -> List[str]:
     extensions: List[str] = []    
-    with open(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "extensions.lst"),
-        "r",
-        encoding="utf8",
-    ) as file:
+    with open(get_path("extensions.lst"), "r", encoding="utf8") as file:
         extensions = [line.rstrip() for line in file]
 
     return extensions
@@ -315,29 +284,21 @@ def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
         git_log: str = git_repo.log(
             "--no-merges", "--numstat", "--pretty=%n%H,%ae,%aI%n"
         ).replace("\n\n\n", "\n")
-        with open(f"repo.log", "w", encoding="utf8") as log_file:
+        with open("repo.log", "w", encoding="utf8") as log_file:
             log_file.write(git_log)
 
 
 def extract_features(training_df: DataFrame) -> bool:
-    """Extract features from the file Git history and add them to the DF"""
     success: bool = True
-    try:
-        timer: float = time.time()
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            get_repositories_log(tmp_dir, training_df["repo"].unique())
-            tqdm.pandas()
-            print("extract_features")
-            print(training_df.columns.values.tolist())
-            # Get features into dataset
-            training_df[FILE_FEATURES] = training_df.progress_apply(
-                get_features, args=(tmp_dir,), axis=1, result_type="expand"
-            )
-            print(training_df.columns.values.tolist())
-            format_dataset(training_df)
-            print(training_df.columns.values.tolist())
-    except BaseException as e:
-        print("extract_features exception")
-        print(e)
+    timer: float = time.time()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        get_repositories_log(tmp_dir, training_df["repo"].unique())
+        tqdm.pandas()
+
+        # Get features into dataset
+        training_df[FILE_FEATURES] = training_df.progress_apply(
+            get_features, args=(tmp_dir,), axis=1, result_type="expand"
+        )
+        format_dataset(training_df)
 
     return success
