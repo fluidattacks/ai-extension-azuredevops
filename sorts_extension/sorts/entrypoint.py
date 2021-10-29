@@ -200,8 +200,7 @@ if __name__ == "__main__":
     organization = sys.argv[2]
     project_name = sys.argv[3]
     commit_id = sys.argv[4]
-    repo_url = sys.argv[5]
-    repo_local_url = sys.argv[6]
+    repo_local_url = sys.argv[5]
 
     # Make API calls
     repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"

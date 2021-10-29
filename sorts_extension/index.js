@@ -47,7 +47,6 @@ function run() {
                     "mvaras",
                     "mvaras_test",
                     buildSourceVersion ? buildSourceVersion : '-',
-                    repositoryUrl ? repositoryUrl : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
                 ] }, function (err, result) {
                 if (err)
