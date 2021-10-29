@@ -171,6 +171,31 @@ def display_results(csv_name: str) -> None:
     print(table.get_string(start=1, end=20))
 
 
+def prepare_sorts(repository_url: str) -> DataFrame:
+    """ Things to do before executing Sorts"""
+    get_repositories_log(repo_local_url)
+    files_df = get_subscription_files_df(repo_local_url)
+    extensions: List[str] = get_extensions_list()
+    num_bits: int = len(extensions).bit_length()
+    extract_features(files_df)
+
+    return files_df
+
+
+def execute_sorts(files_df: DataFrame) -> None:
+    print("Sorts results")
+    if not files_df.empty:
+        results_file_name = "sorts_results_file.csv"
+        predict_vuln_prob(
+            files_df,
+            [f"extension_{num}" for num in range(num_bits + 1)],
+            results_file_name,
+        )
+        display_results(results_file_name)
+    else:
+        print("No files in current commit: dataframe is empty")
+
+
 if __name__ == "__main__":
     organization = sys.argv[2]
     project_name = sys.argv[3]
@@ -190,21 +215,7 @@ if __name__ == "__main__":
     get_commit_files(commit_files_url, paths)
 
     # Prepare Sorts
-    get_repositories_log(repo_local_url)
-    files_df = get_subscription_files_df(repo_local_url)
-    extensions: List[str] = get_extensions_list()
-    num_bits: int = len(extensions).bit_length()
-    extract_features(files_df)
+    files_df = prepare_sorts(repository_url)
 
     # Execute Sorts
-    print("Sorts results")
-    if not files_df.empty:
-        results_file_name = "sorts_results_file.csv"
-        predict_vuln_prob(
-            files_df,
-            [f"extension_{num}" for num in range(num_bits + 1)],
-            results_file_name,
-        )
-        display_results(results_file_name)
-    else:
-        print("No files in current commit: dataframe is empty")
+    execute_sorts(files_df)
