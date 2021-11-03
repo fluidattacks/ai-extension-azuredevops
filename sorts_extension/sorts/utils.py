@@ -1,6 +1,7 @@
 import os
 from typing import (
-	List,
+    List,
+    NamedTuple,
 )
 from typing_extensions import TypedDict
 

@@ -173,8 +173,8 @@ def display_results(csv_name: str) -> None:
 
 def prepare_sorts(repository_url: str) -> DataFrame:
     """ Things to do before executing Sorts"""
-    get_repositories_log(repo_local_url)
-    files_df = get_subscription_files_df(repo_local_url)
+    get_repositories_log(repository_url)
+    files_df = get_subscription_files_df(repository_url)
     extensions: List[str] = get_extensions_list()
     num_bits: int = len(extensions).bit_length()
     extract_features(files_df)
@@ -196,7 +196,7 @@ def execute_sorts(files_df: DataFrame) -> None:
         print("No files in current commit: dataframe is empty")
 
 
-if __name__ == "__main__":
+def main():
     organization = sys.argv[2]
     project_name = sys.argv[3]
     commit_id = sys.argv[4]
@@ -218,3 +218,6 @@ if __name__ == "__main__":
 
     # Execute Sorts
     execute_sorts(files_df)
+
+if __name__ == "__main__":
+    main()    

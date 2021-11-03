@@ -28,7 +28,7 @@ from pandas import (
     DataFrame,
     Series,
 )
-import pytz  # type: ignore
+import pytz
 import tempfile
 import time
 from tqdm import (
@@ -62,11 +62,7 @@ def get_log_file_metrics(logs_dir: str, repo: str, file: str) -> GitMetrics:
         author_email=[], commit_hash=[], date_iso_format=[], stats=[]
     )
     cursor: str = ""
-    with open(
-        f"{repo}.log",
-        "r",
-        encoding="utf8",
-    ) as log_file:
+    with open(f"{repo}.log", "r", encoding="utf8") as log_file:
         for line in log_file:
             # An empty line marks the start of a new commit diff
             if not line.strip("\n"):
