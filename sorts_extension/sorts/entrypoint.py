@@ -56,12 +56,6 @@ def get_commit_files(url: str, file_paths: List[str]) -> None:
             file.write(response)
 
 
-def get_repository_id(url: str) -> str:
-    response = http_get(url)
-
-    return response["value"][0]["id"]
-
-
 def get_commit_files_paths(url) -> List[str]:
     response = http_get(url)
 
@@ -175,8 +169,6 @@ def prepare_sorts(repository_url: str) -> DataFrame:
     """ Things to do before executing Sorts"""
     get_repositories_log(repository_url)
     files_df = get_subscription_files_df(repository_url)
-    extensions: List[str] = get_extensions_list()
-    num_bits: int = len(extensions).bit_length()
     extract_features(files_df)
 
     return files_df
@@ -186,6 +178,9 @@ def execute_sorts(files_df: DataFrame) -> None:
     print("Sorts results")
     if not files_df.empty:
         results_file_name = "sorts_results_file.csv"
+        extensions: List[str] = get_extensions_list()
+        num_bits: int = len(extensions).bit_length()
+
         predict_vuln_prob(
             files_df,
             [f"extension_{num}" for num in range(num_bits + 1)],
@@ -196,28 +191,32 @@ def execute_sorts(files_df: DataFrame) -> None:
         print("No files in current commit: dataframe is empty")
 
 
-def main():
-    organization = sys.argv[2]
-    project_name = sys.argv[3]
-    commit_id = sys.argv[4]
-    repo_local_url = sys.argv[5]
-
-    # Make API calls
-    repository_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories?api-version=6.1-preview.1"
-    repository_id = get_repository_id(repository_url)
-
-    commit_info_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
+def get_files(organization: str, project_name: str, repository_id: str, commit_id: str):
+    base_api_path = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories"
+    commit_info_url = f"{base_api_path}/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
     items = get_commit_files_paths(commit_info_url)
 
     paths = [item["item"]["path"] for item in items]
-    commit_files_url = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
+    commit_files_url = f"{base_api_path}/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
     get_commit_files(commit_files_url, paths)
 
+
+def main():
+    organization = sys.argv[2]
+    project_name = sys.argv[3]
+    repository_id = sys.argv[4]
+    commit_id = sys.argv[5]
+    repo_local_url = sys.argv[6]
+
+    # Get commit files
+    get_files(organization, project_name, repository_id, commit_id)
+
     # Prepare Sorts
-    files_df = prepare_sorts(repository_url)
+    files_df = prepare_sorts(repo_local_url)
 
     # Execute Sorts
     execute_sorts(files_df)
+
 
 if __name__ == "__main__":
     main()    

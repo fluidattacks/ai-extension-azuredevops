@@ -42,16 +42,22 @@ function run() {
             console.log(`collectionUri: ${collectionUri}`);
             console.log(`projectId: ${projectId}`);
             console.log(`projectName: ${projectName}`);
-            ps.PythonShell.run(__dirname + "/sorts/entrypoint.py", { args: [
+            const collectionUriSplit = String(collectionUri).split("/");
+            console.log(`organizationName: ${collectionUriSplit}`);
+            const organizationName = collectionUriSplit[collectionUriSplit.length - 2];
+            ps.PythonShell.run(__dirname + "/sorts/entrypoint.py", {
+                args: [
                     azureUsername + ':' + azureToken,
-                    "mvaras",
-                    "mvaras_test",
+                    organizationName ? organizationName : '-',
+                    projectName ? projectName : '-',
+                    repositoryId ? repositoryId : '-',
                     buildSourceVersion ? buildSourceVersion : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
-                ] }, function (err, result) {
-                if (err)
+                ]
+            }, function (err, result) {
+                if (err || result == undefined)
                     throw err;
-                console.log(result);
+                result.forEach((item) => console.log(item));
             });
         }
         catch (err) {

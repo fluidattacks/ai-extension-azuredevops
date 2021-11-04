@@ -35,18 +35,26 @@ async function run() {
         console.log(`projectId: ${projectId}`);
         console.log(`projectName: ${projectName}`);
 
+        const collectionUriSplit: string[] | undefined = String(collectionUri).split("/");
+        console.log(`organizationName: ${collectionUriSplit}`);
+        const organizationName: string | undefined = collectionUriSplit[collectionUriSplit.length - 2];
+
         ps.PythonShell.run(
             __dirname + "/sorts/entrypoint.py",
-            {args: [
-                azureUsername + ':' + azureToken,
-                "mvaras",
-                "mvaras_test",
-                buildSourceVersion ? buildSourceVersion : '-',
-                repositoryLocalPath ? repositoryLocalPath : '.',
-            ]},
+            {
+
+                args: [
+                    azureUsername + ':' + azureToken,
+                    organizationName ? organizationName : '-',
+                    projectName ? projectName : '-',
+                    repositoryId ? repositoryId : '-',
+                    buildSourceVersion ? buildSourceVersion : '-',
+                    repositoryLocalPath ? repositoryLocalPath : '.',
+                ]
+            },
             function(err, result) {
-                if (err) throw err;
-                console.log(result);
+                if (err || result == undefined) throw err;
+                result.forEach((item) => console.log(item));
             }
         );
     }
