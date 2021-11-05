@@ -1,20 +1,25 @@
 {
     "manifestVersion": 1,
-    "id": "sorts-extension",
-    "name": "Sorts Extension Test",
+    "id": "sor2tss",
+    "name": "Sorts AzureDevOps Extension",
     "version": "0.0.1",
     "publisher": "FluidAttacks",
+    "content": {
+        "details": {
+            "path": "README.md"
+        },
+    },
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
-    ],    
+    ],
     "description": "Sorts extension for Azure DevOps",
     "categories": [
         "Azure Pipelines"
     ],
     "icons": {
-        "default": "images/icon.png"        
+        "default": "images/icon.png"
     },
     "files": [
         {
