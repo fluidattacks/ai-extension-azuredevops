@@ -165,13 +165,19 @@ def display_results(csv_name: str) -> None:
     print(table.get_string(start=1, end=20))
 
 
-def prepare_sorts(repository_url: str) -> DataFrame:
+def prepare_sorts(repository_url: str, commit_file_paths: List[str]) -> DataFrame:
     """ Things to do before executing Sorts"""
     get_repositories_log(repository_url)
     files_df = get_subscription_files_df(repository_url)
-    extract_features(files_df)
+    commit_files_rows = []
+    for _, row in files_df.iterrows():
+        if any(commit_file_path in row["file"] for commit_file_path in commit_file_paths):
+            commit_files_rows.append(row)
 
-    return files_df
+    commit_files_df = pd.DataFrame(commit_files_rows)
+    extract_features(commit_files_df)
+
+    return commit_files_df
 
 
 def execute_sorts(files_df: DataFrame) -> None:
@@ -192,6 +198,7 @@ def execute_sorts(files_df: DataFrame) -> None:
 
 
 def get_files(organization: str, project_name: str, repository_id: str, commit_id: str):
+    """ Saves commit files locally and return its paths"""
     base_api_path = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories"
     commit_info_url = f"{base_api_path}/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
     items = get_commit_files_paths(commit_info_url)
@@ -199,6 +206,8 @@ def get_files(organization: str, project_name: str, repository_id: str, commit_i
     paths = [item["item"]["path"] for item in items]
     commit_files_url = f"{base_api_path}/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
     get_commit_files(commit_files_url, paths)
+
+    return paths
 
 
 def main():
@@ -209,10 +218,10 @@ def main():
     repo_local_url = sys.argv[6]
 
     # Get commit files
-    get_files(organization, project_name, repository_id, commit_id)
+    commit_file_paths = get_files(organization, project_name, repository_id, commit_id)
 
     # Prepare Sorts
-    files_df = prepare_sorts(repo_local_url)
+    files_df = prepare_sorts(repo_local_url, commit_file_paths)
 
     # Execute Sorts
     execute_sorts(files_df)

@@ -17,33 +17,19 @@ function run() {
             const azureUsername = tl.getInput("azureUsername", true);
             const azureToken = tl.getInput("azureToken", true);
             const buildSourceVersion = tl.getInput("buildSourceVersion", true);
-            const sourcesDirectory = tl.getInput("sourcesDirectory", true);
-            const workingDirectory = tl.getInput("workingDirectory", true);
-            const repositoryUrl = tl.getInput("repositoryUrl", true);
             const repositoryLocalPath = tl.getInput("repositoryLocalPath", true);
-            const stagingDirectory = tl.getInput("stagingDirectory", true);
-            const pipelineWorkspace = tl.getInput("pipelineWorkspace", true);
             const repositoryId = tl.getInput("repositoryId", true);
-            const collectionId = tl.getInput("collectionId", true);
             const collectionUri = tl.getInput("collectionUri", true);
-            const projectId = tl.getInput("projectId", true);
             const projectName = tl.getInput("projectName", true);
-            console.log("general debugging");
-            console.log(sourcesDirectory);
-            console.log(workingDirectory);
-            console.log(repositoryUrl);
-            console.log(repositoryLocalPath);
-            console.log(stagingDirectory);
-            console.log(pipelineWorkspace);
+            /*
             console.log("request vars");
+            console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
             console.log(`buildSourceVersion: ${buildSourceVersion}`);
             console.log(`repositoryId: ${repositoryId}`);
-            console.log(`collectionId: ${collectionId}`);
             console.log(`collectionUri: ${collectionUri}`);
-            console.log(`projectId: ${projectId}`);
             console.log(`projectName: ${projectName}`);
+            */
             const collectionUriSplit = String(collectionUri).split("/");
-            console.log(`organizationName: ${collectionUriSplit}`);
             const organizationName = collectionUriSplit[collectionUriSplit.length - 2];
             ps.PythonShell.run(__dirname + "/sorts/entrypoint.py", {
                 args: [
