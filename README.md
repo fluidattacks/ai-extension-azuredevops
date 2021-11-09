@@ -70,7 +70,13 @@ At the end of this process we would have our first Azure Pipeline:
 The last step will be
 to customize your [azure-pipelines.yml] file.
 
-Below you'll find a minimal example of this file:
+In order to do this go to the Pipelines view of your project
+and click **edit** in edit pipeline:
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline.png)
+
+And then copy paste the following content.
+Please make sure to do the modifications explained in the code-comments:
 
 ```yaml
 trigger:
@@ -99,8 +105,8 @@ jobs:
         requests==2.26.0 \
         tqdm==4.62.3
     displayName: Install dependencies
-  - task: fluidattacks-ai@1.0.10
-    displayName: Run Fluid Attacks AI
+  - task: fluidattacks-ai@1.0.11
+    displayName: Fluid Attacks AI
     inputs:
       azureUsername: azure
       azureToken: "$(System.AccessToken)"
@@ -112,4 +118,29 @@ jobs:
       projectName: "$(System.TeamProject)"
 ```
 
-Commit the changes to your repository, and enjoy!
+Then click on **save**.
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline-save-1.png)
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline-save-2.png)
+
+### Running Fluid Attacks AI
+
+At this point Fluid Attacks AI should run on every commit that you
+do to your project.
+
+Alternatively you can schedule a pipeline to run
+by clicking on **Run pipeline**:
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-1.png)
+
+And then **Run**:
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-2.png)
+
+At this point you can see the Fluid Attacks AI logs:
+
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-3.png)
+
+The tool will tell you for each file
+the probability of containing security vulnerabilities.
