@@ -1,3 +1,2 @@
 rm *.vsix
-tfx extension create --manifest-globs vss-extension.json
-
+npx tfx extension create --manifest-globs vss-extension.json
