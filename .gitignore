@@ -1,4 +1,3 @@
-sorts_extension/node_modules
-*.vsix
-npm-debug.log
-__pycache__/
+/**/*.vsix
+/**/__pycache__/
+/**/node_modules/
