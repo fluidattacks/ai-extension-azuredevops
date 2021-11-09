@@ -69,35 +69,28 @@ Include it in your pipeline *yaml* definition file. Below, you have an example *
 You'll find that you need to set up a few input variables to Sorts. Most of them are just [Azure Build Environment Vars](https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#pipeline-variables-devops-services). You will also need to have an Azure personal token. You can generate one following this [steps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page).
 
 ```
-trigger:
-- main
-
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-  - script: echo Hello World Sorts in your Pipeline!
-    displayName: 'Run a one-line echo'
-
+jobs:
+- job: fluid_attacks_ai
+  displayName: Fluid Attacks AI
+  steps:
   - script: |
-    echo Installing additional Python packages.
-    python -m pip install \
-      gitpython \
-      pandas \
-      cryptography \
-      prettytable \
-      tqdm \
-      category-encoders
-    displayName: 'Install extra python packages'
+      python3 -m pip install \
+        category-encoders==2.3.0 \
+        cryptography=35.0.0 \
+        gitpython==3.1.24 \
+        pandas==1.3.4 \
+        prettytable==2.4.0 \
+        tqdm==4.62.3 \
 
+    displayName: Install dependencies
   - task: azure_sorts_test@0
     inputs:
       azureUsername: YOUR_PERSONAL_AZURE_USERNAME
       azureToken: YOUR_PERSONAL_AZURE_TOKEN
-      repositoryUrl: '$(Build.Repository.Uri)'
-      repositoryLocalPath: '$(Build.Repository.LocalPath)'
-      buildSourceVersion: '$(Build.SourceVersion)'
-      repositoryId: '$(Build.Repository.ID)'
-      collectionUri: '$(System.CollectionUri)'
-      projectName: '$(System.TeamProject)'
+      repositoryUrl: "$(Build.Repository.Uri)"
+      repositoryLocalPath: "$(Build.Repository.LocalPath)"
+      buildSourceVersion: "$(Build.SourceVersion)"
+      repositoryId: "$(Build.Repository.ID)"
+      collectionUri: "$(System.CollectionUri)"
+      projectName: "$(System.TeamProject)"
 ```
