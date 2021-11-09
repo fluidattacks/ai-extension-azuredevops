@@ -28,7 +28,34 @@ Please visit
 and install it in your Azure organization
 by clicking on the **Get it free** button.
 
-### Configure the pipeline
+![](./docs/static/get-it-free-at-the-marketplace.png)
+
+### Setup Azure Pipelines in your project
+
+> This step is optional
+> if your project has already configured Azure Pipelines
+
+In your project,
+navigate to the pipelines section
+and click in the **Create Pipeline** button.
+
+![](./docs/static/create-pipeline-view.png)
+
+Now follow the wizard.
+Our code is located at **Azure Repos Git**:
+
+![](./docs/static/create-pipeline-view-connect.png)
+
+Select the repository:
+
+![](./docs/static/create-pipeline-view-select-repo.png)
+
+Finally click on **Save**.
+
+![](./docs/static/create-pipeline-view-review-and-save.png)
+
+
+### Configuring the pipeline
 
 Include it in your pipeline *yaml* definition file. Below, you have an example *yaml*.
 You'll find that you need to set up a few input variables to Sorts. Most of them are just [Azure Build Environment Vars](https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#pipeline-variables-devops-services). You will also need to have an Azure personal token. You can generate one following this [steps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page).
