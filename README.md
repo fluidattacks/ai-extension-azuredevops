@@ -10,6 +10,14 @@ so you can use Fluid Attacks AI in your Azure projects.
 
 ## Getting started
 
+This tutorial will guide you through
+creating an Azure DevOps project from scratch and configuring Fluid Attacks AI on it.
+
+The result of this tutorial
+is also stored on a public repository at Azure DevOps:
+
+- https://dev.azure.com/fluidattacks/sorts-example
+
 ### Requirements
 
 1. An Azure account
