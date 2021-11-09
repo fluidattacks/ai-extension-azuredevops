@@ -89,14 +89,15 @@ jobs:
         gitpython==3.1.20 \
         pandas==1.1.5 \
         prettytable==2.4.0 \
+        python-dateutil==2.8.2 \
         requests==2.26.0 \
-        tqdm==4.62.3 \
-
+        tqdm==4.62.3
     displayName: Install dependencies
   - task: azure_sorts_test@0
+    displayName: Run Fluid Attacks AI
     inputs:
-      azureUsername: YOUR_PERSONAL_AZURE_USERNAME
-      azureToken: YOUR_PERSONAL_AZURE_TOKEN
+      azureUsername: azure
+      azureToken: "$(System.AccessToken)"
       repositoryUrl: "$(Build.Repository.Uri)"
       repositoryLocalPath: "$(Build.Repository.LocalPath)"
       buildSourceVersion: "$(Build.SourceVersion)"
