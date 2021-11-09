@@ -14,6 +14,11 @@ so you can use Fluid Attacks AI in your Azure projects.
 
 1. An Azure account
 1. An Azure organization and project
+1. An Azure agent with:
+    - Enough [parallel jobs](https://docs.microsoft.com/en-us/azure/devops/pipelines/licensing/concurrent-jobs?view=azure-devops&tabs=ms-hosted)
+      as to be able to run a pipeline in your project
+    - The following dependencies:
+      - Python3
 1. Sufficient permissions to:
     - Install extensions from the
       [Visual Studio Marketplace](https://marketplace.visualstudio.com/)
