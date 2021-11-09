@@ -20,6 +20,7 @@ so you can use Fluid Attacks AI in your Azure projects.
     - The following dependencies:
       - python3
       - python3-pip
+      - python3-setuptools
 1. Sufficient permissions to:
     - Install extensions from the
       [Visual Studio Marketplace](https://marketplace.visualstudio.com/)
@@ -69,18 +70,26 @@ At the end of this process we would have our first Azure Pipeline:
 Include it in your pipeline *yaml* definition file. Below, you have an example *yaml*.
 You'll find that you need to set up a few input variables to Sorts. Most of them are just [Azure Build Environment Vars](https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#pipeline-variables-devops-services). You will also need to have an Azure personal token. You can generate one following this [steps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page).
 
-```
+```yaml
+trigger:
+- main
+
+pool:
+  name: Default
+
 jobs:
 - job: fluid_attacks_ai
   displayName: Fluid Attacks AI
   steps:
   - script: |
+      python3 -m pip install --upgrade pip
       python3 -m pip install \
         category-encoders==2.3.0 \
-        cryptography=35.0.0 \
-        gitpython==3.1.24 \
-        pandas==1.3.4 \
+        cryptography==35.0.0 \
+        gitpython==3.1.20 \
+        pandas==1.1.5 \
         prettytable==2.4.0 \
+        requests==2.26.0 \
         tqdm==4.62.3 \
 
     displayName: Install dependencies
