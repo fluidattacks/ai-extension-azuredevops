@@ -19,7 +19,7 @@
       "type": "ms.vss-distributed-task.task"
     }
   ],
-  "description": "Sorts extension for Azure DevOps",
+  "description": "Detect the files in your repository that are more likely to contain security vulnerabilities, enabling you to prioritize their review",
   "files": [
     {
       "path": "sorts_extension"
@@ -28,14 +28,15 @@
   "icons": {
     "default": "images/icon.png"
   },
-  "id": "sor2tss",
+  "id": "ai",
   "manifestVersion": 1,
-  "name": "Sorts AzureDevOps Extension",
+  "name": "Fluid Attacks AI",
+  "public": true,
   "publisher": "FluidAttacks",
   "targets": [
     {
       "id": "Microsoft.VisualStudio.Services"
     }
   ],
-  "version": "0.0.1"
+  "version": "1.0.11"
 }
