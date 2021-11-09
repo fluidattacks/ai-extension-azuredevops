@@ -35,7 +35,7 @@ Please visit
 and install it in your Azure organization
 by clicking on the **Get it free** button.
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/get-it-free-at-the-marketplace.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/get-it-free-at-the-marketplace.png)
 
 ### Setup Azure Pipelines in your project
 
@@ -46,24 +46,24 @@ In your project,
 navigate to the pipelines section
 and click in the **Create Pipeline** button.
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/create-pipeline-view.png)
 
 Now follow the wizard.
 Our code is located at **Azure Repos Git**:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-connect.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/create-pipeline-view-connect.png)
 
 Select the repository:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-select-repo.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/create-pipeline-view-select-repo.png)
 
 Finally click on **Save**.
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-review-and-save.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/create-pipeline-view-review-and-save.png)
 
 At the end of this process we would have our first Azure Pipeline:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-finished.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/create-pipeline-view-finished.png)
 
 ### Configuring the pipeline
 
@@ -73,7 +73,7 @@ to customize your [azure-pipelines.yml] file.
 In order to do this go to the Pipelines view of your project
 and click **edit** in edit pipeline:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/edit-pipeline.png)
 
 And then copy paste the following content.
 Please make sure to do the modifications explained in the code-comments:
@@ -105,7 +105,7 @@ jobs:
         requests==2.26.0 \
         tqdm==4.62.3
     displayName: Install dependencies
-  - task: fluidattacks-ai@1.0.11
+  - task: fluidattacks-ai@1
     displayName: Fluid Attacks AI
     inputs:
       azureUsername: azure
@@ -120,9 +120,9 @@ jobs:
 
 Then click on **save**.
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline-save-1.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/edit-pipeline-save-1.png)
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/edit-pipeline-save-2.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/edit-pipeline-save-2.png)
 
 ### Running Fluid Attacks AI
 
@@ -132,15 +132,15 @@ do to your project.
 Alternatively you can schedule a pipeline to run
 by clicking on **Run pipeline**:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-1.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/run-pipeline-1.png)
 
 And then **Run**:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-2.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/run-pipeline-2.png)
 
 At this point you can see the Fluid Attacks AI logs:
 
-![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/run-pipeline-3.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/ec9284761d9e5cd1907e28fbebce3bf019612c39/docs/static/run-pipeline-3.png)
 
 The tool will tell you for each file
 the probability of containing security vulnerabilities.
