@@ -31,11 +31,11 @@ so you can use Fluid Attacks AI in your Azure projects.
 ### Install the extension
 
 Please visit
-[Fluid Attacks AI at the Marketplace](https://marketplace.visualstudio.com/items?itemName=FluidAttacks.sortsxtension)
+[Fluid Attacks AI at the Marketplace](https://marketplace.visualstudio.com/items?itemName=FluidAttacks.ai)
 and install it in your Azure organization
 by clicking on the **Get it free** button.
 
-![](./docs/static/get-it-free-at-the-marketplace.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/get-it-free-at-the-marketplace.png)
 
 ### Setup Azure Pipelines in your project
 
@@ -46,37 +46,43 @@ In your project,
 navigate to the pipelines section
 and click in the **Create Pipeline** button.
 
-![](./docs/static/create-pipeline-view.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view.png)
 
 Now follow the wizard.
 Our code is located at **Azure Repos Git**:
 
-![](./docs/static/create-pipeline-view-connect.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-connect.png)
 
 Select the repository:
 
-![](./docs/static/create-pipeline-view-select-repo.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-select-repo.png)
 
 Finally click on **Save**.
 
-![](./docs/static/create-pipeline-view-review-and-save.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-review-and-save.png)
 
 At the end of this process we would have our first Azure Pipeline:
 
-![](./docs/static/create-pipeline-view-finished.png)
+![](https://raw.githubusercontent.com/fluidattacks/ai-extension-azuredevops/99e2531f95d9abfe8127076c62a087df751f7e74/docs/static/create-pipeline-view-finished.png)
 
 ### Configuring the pipeline
 
-Include it in your pipeline *yaml* definition file. Below, you have an example *yaml*.
-You'll find that you need to set up a few input variables to Sorts. Most of them are just [Azure Build Environment Vars](https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#pipeline-variables-devops-services). You will also need to have an Azure personal token. You can generate one following this [steps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page).
+The last step will be
+to customize your [azure-pipelines.yml] file.
+
+Below you'll find a minimal example of this file:
 
 ```yaml
 trigger:
+# Name of the branch where you want this job to run on,
+# Example: trunk, development, release, main, etc
 - main
 
+# Agents pool that hosts runners with the required libraries
 pool:
   name: Default
 
+# This should be copied as-is, no modifications
 jobs:
 - job: fluid_attacks_ai
   displayName: Fluid Attacks AI
@@ -93,7 +99,7 @@ jobs:
         requests==2.26.0 \
         tqdm==4.62.3
     displayName: Install dependencies
-  - task: azure_sorts_test@0
+  - task: fluidattacks-ai@1.0.10
     displayName: Run Fluid Attacks AI
     inputs:
       azureUsername: azure
@@ -105,3 +111,5 @@ jobs:
       collectionUri: "$(System.CollectionUri)"
       projectName: "$(System.TeamProject)"
 ```
+
+Commit the changes to your repository, and enjoy!
