@@ -19,31 +19,31 @@ trigger:
 - main
 
 pool:
-	vmImage: ubuntu-latest
+  vmImage: ubuntu-latest
 
 steps:
-	- script: echo Hello World Sorts in your Pipeline!
-		displayName: 'Run a one-line echo'
+  - script: echo Hello World Sorts in your Pipeline!
+    displayName: 'Run a one-line echo'
 
-	- script: |
-		echo Installing additional Python packages.
-		python -m pip install \
-			gitpython \
-			pandas \
-			cryptography \
-			prettytable \
-			tqdm \
-			category-encoders
-		displayName: 'Install extra python packages'
+  - script: |
+    echo Installing additional Python packages.
+    python -m pip install \
+      gitpython \
+      pandas \
+      cryptography \
+      prettytable \
+      tqdm \
+      category-encoders
+    displayName: 'Install extra python packages'
 
-	- task: azure_sorts_test@0
-		inputs:
-			azureUsername: YOUR_PERSONAL_AZURE_USERNAME
-			azureToken: YOUR_PERSONAL_AZURE_TOKEN
-			repositoryUrl: '$(Build.Repository.Uri)'
-			repositoryLocalPath: '$(Build.Repository.LocalPath)'
-			buildSourceVersion: '$(Build.SourceVersion)'
-			repositoryId: '$(Build.Repository.ID)'
-			collectionUri: '$(System.CollectionUri)'
-			projectName: '$(System.TeamProject)'
+  - task: azure_sorts_test@0
+    inputs:
+      azureUsername: YOUR_PERSONAL_AZURE_USERNAME
+      azureToken: YOUR_PERSONAL_AZURE_TOKEN
+      repositoryUrl: '$(Build.Repository.Uri)'
+      repositoryLocalPath: '$(Build.Repository.LocalPath)'
+      buildSourceVersion: '$(Build.SourceVersion)'
+      repositoryId: '$(Build.Repository.ID)'
+      collectionUri: '$(System.CollectionUri)'
+      projectName: '$(System.TeamProject)'
 ```
