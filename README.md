@@ -1,9 +1,14 @@
-# Fluid Attacks AI AzureDevops Extension
+# Fluid Attacks AI
 
-Execute [Fluid Attacks](https://fluidattacks.com) AI extension in your AzureDevOps by including this extension in your pipelines.
-Fluid Attacks AI is a Machine Learning based tool able to give predictions about the vulnerability risk of your code, file by file.
+[Fluid Attacks](https://fluidattacks.com) AI
+helps you detecting the files in your repository
+that are more likely to contain security vulnerabilities,
+enabling you to prioritize their review.
 
-## Set up Sorts in your CI/CD
+This repository contains an Azure DevOps extension
+so you can use Fluid Attacks AI in your Azure projects.
+
+## Getting started
 
 You need two things. First, install the [extension](https://marketplace.visualstudio.com/items?itemName=FluidAttacks.sortsxtension).
 Second, you need to include it in your pipeline *yaml* definition file. Below, you have an example *yaml*.
@@ -19,7 +24,7 @@ pool:
 steps:
 	- script: echo Hello World Sorts in your Pipeline!
 		displayName: 'Run a one-line echo'
-	  
+
 	- script: |
 		echo Installing additional Python packages.
 		python -m pip install \
@@ -30,7 +35,7 @@ steps:
 			tqdm \
 			category-encoders
 		displayName: 'Install extra python packages'
-	  
+
 	- task: azure_sorts_test@0
 		inputs:
 			azureUsername: YOUR_PERSONAL_AZURE_USERNAME
