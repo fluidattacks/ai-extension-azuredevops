@@ -54,6 +54,9 @@ Finally click on **Save**.
 
 ![](./docs/static/create-pipeline-view-review-and-save.png)
 
+At the end of this process we would have our first Azure Pipeline:
+
+![](./docs/static/create-pipeline-view-finished.png)
 
 ### Configuring the pipeline
 
