@@ -1,41 +1,41 @@
 {
-    "manifestVersion": 1,
-    "id": "sor2tss",
-    "name": "Sorts AzureDevOps Extension",
-    "version": "0.0.1",
-    "publisher": "FluidAttacks",
-    "content": {
-        "details": {
-            "path": "README.md"
-        },
-    },
-    "targets": [
-        {
-            "id": "Microsoft.VisualStudio.Services"
-        }
-    ],
-    "description": "Sorts extension for Azure DevOps",
-    "categories": [
-        "Azure Pipelines"
-    ],
-    "icons": {
-        "default": "images/icon.png"
-    },
-    "files": [
-        {
-            "path": "sorts_extension"
-        }
-    ],
-    "contributions": [
-        {
-            "id": "custom-build-release-task",
-            "type": "ms.vss-distributed-task.task",
-            "targets": [
-                "ms.vss-distributed-task.tasks"
-            ],
-            "properties": {
-                "name": "sorts_extension"
-            }
-        }
-    ]
+  "categories": [
+    "Azure Pipelines"
+  ],
+  "content": {
+    "details": {
+      "path": "README.md"
+    }
+  },
+  "contributions": [
+    {
+      "id": "custom-build-release-task",
+      "properties": {
+        "name": "sorts_extension"
+      },
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "type": "ms.vss-distributed-task.task"
+    }
+  ],
+  "description": "Sorts extension for Azure DevOps",
+  "files": [
+    {
+      "path": "sorts_extension"
+    }
+  ],
+  "icons": {
+    "default": "images/icon.png"
+  },
+  "id": "sor2tss",
+  "manifestVersion": 1,
+  "name": "Sorts AzureDevOps Extension",
+  "publisher": "FluidAttacks",
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "version": "0.0.1"
 }
