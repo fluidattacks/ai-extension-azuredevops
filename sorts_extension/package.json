@@ -1,22 +1,9 @@
 {
-  "name": "extension",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "azure-pipelines-task-lib": "^3.1.9",
-    "node-fetch": "^3.0.0",
-    "python-shell": "^3.0.1",
-    "xhr2": "^0.2.1"
+    "azure-pipelines-task-lib": "^3.1.10",
+    "python-shell": "^3.0.1"
   },
-  "devDependencies": {
-    "@types/node": "^16.10.1",
-    "@types/q": "^1.5.5"
-  },
-  "description": ""
+  "main": "index.js",
+  "name": "extension",
+  "version": "1.0.0"
 }
