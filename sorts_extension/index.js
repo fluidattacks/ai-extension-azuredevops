@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const tl = require("azure-pipelines-task-lib/task");
 const ps = require("python-shell");
+const exceptions_1 = require("./exceptions");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -21,9 +22,11 @@ function run() {
             const repositoryId = tl.getInput("repositoryId", true);
             const collectionUri = tl.getInput("collectionUri", true);
             const projectName = tl.getInput("projectName", true);
-            /*
+            if (azureUsername === undefined && azureToken === undefined) {
+                throw new exceptions_1.CredentialsError();
+            }
             console.log("request vars");
-            console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
+            /*console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
             console.log(`buildSourceVersion: ${buildSourceVersion}`);
             console.log(`repositoryId: ${repositoryId}`);
             console.log(`collectionUri: ${collectionUri}`);

@@ -1,5 +1,6 @@
 import tl = require("azure-pipelines-task-lib/task");
-import ps = require("python-shell"); 
+import ps = require("python-shell");
+import { CredentialsError } from "./exceptions";
 
 
 async function run() {
@@ -12,9 +13,12 @@ async function run() {
         const collectionUri: string | undefined = tl.getInput("collectionUri", true);
         const projectName: string | undefined = tl.getInput("projectName", true);
 
-        /*
+        if (azureUsername === undefined && azureToken === undefined) {
+            throw new CredentialsError();
+        }
+        
         console.log("request vars");
-        console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
+        /*console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
         console.log(`buildSourceVersion: ${buildSourceVersion}`);
         console.log(`repositoryId: ${repositoryId}`);
         console.log(`collectionUri: ${collectionUri}`);
@@ -27,7 +31,6 @@ async function run() {
         ps.PythonShell.run(
             __dirname + "/sorts/entrypoint.py",
             {
-
                 args: [
                     azureUsername + ':' + azureToken,
                     organizationName ? organizationName : '-',
