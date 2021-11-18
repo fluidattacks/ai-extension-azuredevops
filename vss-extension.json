@@ -19,7 +19,7 @@
       "type": "ms.vss-distributed-task.task"
     }
   ],
-  "description": "Detect the files in your repository that are more likely to contain security vulnerabilities, enabling you to prioritize their review",
+  "description": "Fluid Attacks AI detects the files in your repository that are most likely to contain security vulnerabilities, enabling you to prioritize them.",
   "files": [
     {
       "path": "sorts_extension"
@@ -38,5 +38,5 @@
       "id": "Microsoft.VisualStudio.Services"
     }
   ],
-  "version": "1.0.12"
+  "version": "1.0.14"
 }
