@@ -4,8 +4,12 @@ from category_encoders import (
 from cryptography.fernet import (
     Fernet,
 )
-from numpy import (
-    ndarray,
+from datetime import (
+    datetime,
+)
+import dateutil
+from functools import (
+    partial,
 )
 import git
 from git.cmd import (
@@ -15,20 +19,17 @@ from git.exc import (
     GitCommandError,
     GitCommandNotFound,
 )
-from datetime import (
-    datetime,
-)
-from functools import (
-    partial,
+from numpy import (
+    ndarray,
 )
 import os
-import re
 import pandas as pd
 from pandas import (
     DataFrame,
     Series,
 )
 import pytz
+import re
 import tempfile
 import time
 from tqdm import (
@@ -40,7 +41,6 @@ from typing import (
     Set,
     Tuple,
 )
-
 from utils import (
     FILE_FEATURES,
     FileFeatures,
@@ -50,7 +50,7 @@ from utils import (
 
 
 def get_extensions_list() -> List[str]:
-    extensions: List[str] = []    
+    extensions: List[str] = []
     with open(get_path("extensions.lst"), "r", encoding="utf8") as file:
         extensions = [line.rstrip() for line in file]
 
@@ -121,7 +121,7 @@ def get_features(row: Series, logs_dir: str) -> FileFeatures:
     seldom_contributors: int = -1
     unique_authors: List[str] = []
     extension: str = ""
-    
+
     repo_path: str = row["repo"]
     repo_name: str = os.path.basename(repo_path)
     file_relative: str = row["file"].replace(f"{repo_name}/", "", 1)
@@ -158,7 +158,7 @@ def get_file_age(git_metrics: GitMetrics) -> int:
     commit_date_history: List[str] = git_metrics["date_iso_format"]
     file_creation_date: str = commit_date_history[-1]
 
-    return (today - datetime.fromisoformat(file_creation_date)).days
+    return (today - dateutil.parser.isoparse(file_creation_date)).days
 
 
 def get_num_commits(git_metrics: GitMetrics) -> int:
@@ -170,9 +170,7 @@ def get_num_commits(git_metrics: GitMetrics) -> int:
 def get_num_lines(file_path: str) -> int:
     result: int = 0
     with open(file_path, "rb") as file:
-        bufgen = iter(
-            partial(file.raw.read, 1024 * 1024), b""  # type: ignore
-        )
+        bufgen = iter(partial(file.raw.read, 1024 * 1024), b"")  # type: ignore
         result = sum(buf.count(b"\n") for buf in bufgen)
 
     return result
@@ -181,7 +179,7 @@ def get_num_lines(file_path: str) -> int:
 def get_midnight_commits(git_metrics: GitMetrics) -> int:
     commit_date_history: List[str] = git_metrics["date_iso_format"]
     commit_hour_history: List[int] = [
-        datetime.fromisoformat(date).hour for date in commit_date_history
+        dateutil.parser.isoparse(date).hour for date in commit_date_history
     ]
 
     return sum([1 for hour in commit_hour_history if 0 <= hour < 6])
