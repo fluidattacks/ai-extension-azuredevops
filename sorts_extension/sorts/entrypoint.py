@@ -31,6 +31,9 @@ from typing import (
     Tuple,
 )
 import urllib.request
+from exceptions import (
+    CredentialsError,
+)
 from utils import (
     get_path,
 )
@@ -42,6 +45,8 @@ def http_get(url: str, return_json: bool = True) -> str:
     b64 = base64.b64encode(USERPASS.encode()).decode()
     headers = {"Authorization": "Basic %s" % b64}
     response = requests.get(url=url, headers=headers)
+    if response.status_code != 200:
+        raise CredentialsError()
 
     return response.json() if return_json else response.text
 
@@ -57,7 +62,6 @@ def get_commit_files(url: str, file_paths: List[str]) -> None:
 
 def get_commit_files_paths(url) -> List[str]:
     response = http_get(url)
-
     return response["changes"]
 
 
