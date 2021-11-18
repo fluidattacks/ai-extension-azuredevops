@@ -79,7 +79,7 @@ def get_repositories_log(repo_path: str) -> None:
 def read_allowed_names() -> Tuple[List[str], ...]:
     allowed_names: List[List[str]] = []
     for name in ["extensions.lst", "composites.lst"]:
-        with open(get_path(name)) as file:
+        with open(get_path(f"res/{name}")) as file:
             content_as_list = file.read().split("\n")
             allowed_names.append(list(filter(None, content_as_list)))
 
@@ -149,7 +149,7 @@ def build_results_csv(
 def predict_vuln_prob(
     predict_df: DataFrame, features: List[str], csv_name: str
 ) -> None:
-    model = load(get_path("model.joblib"))
+    model = load(get_path("res/model.joblib"))
     input_data = predict_df[model.feature_names + features]
     probability_prediction: ndarray = model.predict_proba(input_data)
     class_prediction: ndarray = model.predict(input_data)
