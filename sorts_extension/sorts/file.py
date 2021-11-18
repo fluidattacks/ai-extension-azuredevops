@@ -41,6 +41,9 @@ from typing import (
     Set,
     Tuple,
 )
+from exceptions import (
+    AIExtensionError,
+)
 from utils import (
     FILE_FEATURES,
     FileFeatures,
@@ -122,20 +125,23 @@ def get_features(row: Series, logs_dir: str) -> FileFeatures:
     unique_authors: List[str] = []
     extension: str = ""
 
-    repo_path: str = row["repo"]
-    repo_name: str = os.path.basename(repo_path)
-    file_relative: str = row["file"].replace(f"{repo_name}/", "", 1)
-    git_metrics: GitMetrics = get_log_file_metrics(
-        logs_dir, repo_name, file_relative
-    )
-    file_age = get_file_age(git_metrics)
-    midnight_commits = get_midnight_commits(git_metrics)
-    num_commits = get_num_commits(git_metrics)
-    num_lines = get_num_lines(os.path.join(repo_path, file_relative))
-    risky_commits = get_risky_commits(git_metrics)
-    seldom_contributors = get_seldom_contributors(git_metrics)
-    unique_authors = get_unique_authors(git_metrics)
-    extension = file_relative.split(".")[-1].lower()
+    try:
+        repo_path: str = row["repo"]
+        repo_name: str = os.path.basename(repo_path)
+        file_relative: str = row["file"].replace(f"{repo_name}/", "", 1)
+        git_metrics: GitMetrics = get_log_file_metrics(
+            logs_dir, repo_name, file_relative
+        )
+        file_age = get_file_age(git_metrics)
+        midnight_commits = get_midnight_commits(git_metrics)
+        num_commits = get_num_commits(git_metrics)
+        num_lines = get_num_lines(os.path.join(repo_path, file_relative))
+        risky_commits = get_risky_commits(git_metrics)
+        seldom_contributors = get_seldom_contributors(git_metrics)
+        unique_authors = get_unique_authors(git_metrics)
+        extension = file_relative.split(".")[-1].lower()
+    except (FileNotFoundError, IndexError) as exception:
+        raise AIExtensionError(f"get_features: {exception}")
 
     return FileFeatures(
         num_commits=num_commits,
@@ -169,9 +175,12 @@ def get_num_commits(git_metrics: GitMetrics) -> int:
 
 def get_num_lines(file_path: str) -> int:
     result: int = 0
-    with open(file_path, "rb") as file:
-        bufgen = iter(partial(file.raw.read, 1024 * 1024), b"")  # type: ignore
-        result = sum(buf.count(b"\n") for buf in bufgen)
+    try:
+        with open(file_path, "rb") as file:
+            bufgen = iter(partial(file.raw.read, 1024 * 1024), b"")  # type: ignore
+            result = sum(buf.count(b"\n") for buf in bufgen)
+    except FileNotFoundError as exception:
+        raise AIExtensionError(f"get_num_lines: {exception}")
 
     return result
 
@@ -284,15 +293,19 @@ def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
 
 def extract_features(training_df: DataFrame) -> bool:
     success: bool = True
-    timer: float = time.time()
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        get_repositories_log(tmp_dir, training_df["repo"].unique())
-        tqdm.pandas()
+    try:
+        timer: float = time.time()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            get_repositories_log(tmp_dir, training_df["repo"].unique())
+            tqdm.pandas()
 
-        # Get features into dataset
-        training_df[FILE_FEATURES] = training_df.progress_apply(
-            get_features, args=(tmp_dir,), axis=1, result_type="expand"
-        )
-        format_dataset(training_df)
+            # Get features into dataset
+            training_df[FILE_FEATURES] = training_df.progress_apply(
+                get_features, args=(tmp_dir,), axis=1, result_type="expand"
+            )
+            format_dataset(training_df)
+    except KeyError as exception:
+        success = False
+        raise AIExtensionError(f"extract_features: {exception}")
 
     return success
