@@ -33,10 +33,15 @@
   "name": "Fluid Attacks AI",
   "public": true,
   "publisher": "FluidAttacks",
+  "tags": [
+    "Azure Pipelines",
+    "DevSecOps",
+    "AI + Machine Learning"
+  ],
   "targets": [
     {
       "id": "Microsoft.VisualStudio.Services"
     }
   ],
-  "version": "1.0.14"
+  "version": "1.0.15"
 }
