@@ -54,7 +54,7 @@ from utils import (
 
 def get_extensions_list() -> List[str]:
     extensions: List[str] = []
-    with open(get_path("extensions.lst"), "r", encoding="utf8") as file:
+    with open(get_path("res/extensions.lst"), "r", encoding="utf8") as file:
         extensions = [line.rstrip() for line in file]
 
     return extensions
