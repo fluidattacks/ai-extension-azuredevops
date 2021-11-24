@@ -14,3 +14,12 @@ class AIExtensionError(Exception):
             "Please contact support via help@fluidattacks.com or open an issue in https://github.com/fluidattacks/ai-extension-azuredevops"
         )
         super(AIExtensionError, self).__init__(msg)
+
+
+class CommitRiskError(Exception):
+    def __init__(self) -> None:
+        msg = (
+            "FluidAttacks AI system detected a mean risk in your commit files greater than the established limit\n"
+            "(COMMIT_MEAN_RISK_LIMIT = 80%).\n"
+        )
+        super(CommitRiskError, self).__init__(msg)

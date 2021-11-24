@@ -33,9 +33,13 @@ from typing import (
 import urllib.request
 from exceptions import (
     CredentialsError,
+    CommitRiskError,
 )
 from utils import (
     get_path,
+)
+from constants import (
+    COMMIT_RISK_LIMIT,
 )
 
 USERPASS = sys.argv[1]
@@ -117,7 +121,7 @@ def get_subscription_files_df(repository_path: str) -> DataFrame:
 
 def build_results_csv(
     predictions: ndarray, predict_df: DataFrame, csv_name: str
-) -> None:
+) -> float:
     scope: str = csv_name.split(".")[0].split("_")[-1]
     result_df: DataFrame = pd.concat(
         [
@@ -145,6 +149,12 @@ def build_results_csv(
     )
     sorted_files.to_csv(csv_name, index=False)
 
+    prob_vulns = sorted_files["prob_vuln"].tolist()
+
+    prob_vulns_mean = sum([float(prob.replace("%", "")) for prob in prob_vulns]) / len(prob_vulns)
+
+    return prob_vulns_mean
+
 
 def predict_vuln_prob(
     predict_df: DataFrame, features: List[str], csv_name: str
@@ -157,7 +167,7 @@ def predict_vuln_prob(
         [class_prediction, probability_prediction]
     )
 
-    build_results_csv(merged_predictions, predict_df, csv_name)
+    return build_results_csv(merged_predictions, predict_df, csv_name)
 
 
 def display_results(csv_name: str) -> None:
@@ -192,19 +202,22 @@ def prepare_sorts(
     return commit_files_df
 
 
-def execute_sorts(files_df: DataFrame) -> None:
+def execute_sorts(files_df: DataFrame, break_pipeline: bool) -> None:
     print("Sorts results")
     if not files_df.empty:
         results_file_name = "sorts_results_file.csv"
         extensions: List[str] = get_extensions_list()
         num_bits: int = len(extensions).bit_length()
 
-        predict_vuln_prob(
+        commit_mean_risk = predict_vuln_prob(
             files_df,
             [f"extension_{num}" for num in range(num_bits + 1)],
             results_file_name,
         )
         display_results(results_file_name)
+        print(f"Mean Risk: {commit_mean_risk}")
+        if break_pipeline and commit_mean_risk >= COMMIT_RISK_LIMIT:
+            raise CommitRiskError()
     else:
         print("No files in current commit: dataframe is empty")
 
@@ -230,6 +243,7 @@ def main():
     repository_id = sys.argv[4]
     commit_id = sys.argv[5]
     repo_local_url = sys.argv[6]
+    break_pipeline = bool(sys.argv[7])
 
     # Get commit files
     commit_file_paths = get_files(
@@ -240,7 +254,7 @@ def main():
     files_df = prepare_sorts(repo_local_url, commit_file_paths)
 
     # Execute Sorts
-    execute_sorts(files_df)
+    execute_sorts(files_df, break_pipeline)
 
 
 if __name__ == "__main__":
