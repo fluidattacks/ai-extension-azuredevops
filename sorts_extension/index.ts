@@ -11,6 +11,7 @@ async function run() {
         const repositoryId: string | undefined = tl.getInput("repositoryId", true);
         const collectionUri: string | undefined = tl.getInput("collectionUri", true);
         const projectName: string | undefined = tl.getInput("projectName", true);
+        const breakPipeline: string | undefined = tl.getInput("breakPipeline", false);
         /*
         console.log("request vars");
         console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
@@ -33,6 +34,7 @@ async function run() {
                     repositoryId ? repositoryId : '-',
                     buildSourceVersion ? buildSourceVersion : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
+                    breakPipeline ? breakPipeline : ""
                 ]
             },
             function(err, result) {

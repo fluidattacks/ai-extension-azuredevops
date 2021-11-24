@@ -21,6 +21,7 @@ function run() {
             const repositoryId = tl.getInput("repositoryId", true);
             const collectionUri = tl.getInput("collectionUri", true);
             const projectName = tl.getInput("projectName", true);
+            const breakPipeline = tl.getInput("breakPipeline", false);
             /*
             console.log("request vars");
             console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
@@ -39,6 +40,7 @@ function run() {
                     repositoryId ? repositoryId : '-',
                     buildSourceVersion ? buildSourceVersion : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
+                    breakPipeline ? breakPipeline : ""
                 ]
             }, function (err, result) {
                 if (err || result == undefined) {
