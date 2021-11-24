@@ -229,8 +229,7 @@ def get_files(
     base_api_path = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories"
     commit_info_url = f"{base_api_path}/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
     items = get_commit_files_paths(commit_info_url)
-
-    paths = [item["item"]["path"] for item in items]
+    paths = [item["item"]["path"] for item in items if not "isFolder" in item["item"]]
     commit_files_url = f"{base_api_path}/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
     get_commit_files(commit_files_url, paths)
 
@@ -243,7 +242,7 @@ def main():
     repository_id = sys.argv[4]
     commit_id = sys.argv[5]
     repo_local_url = sys.argv[6]
-    break_pipeline = bool(sys.argv[7])
+    break_pipeline = sys.argv[7]
 
     # Get commit files
     commit_file_paths = get_files(
