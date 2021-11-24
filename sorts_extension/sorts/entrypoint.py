@@ -142,7 +142,7 @@ def build_results_csv(
         .reset_index(drop=True)[[scope, "prob_vuln"]]
     )
     sorted_files["file"] = sorted_files["file"].apply(
-        lambda item: item.split("/")[-1]
+        lambda item: "/".join(item.split("/")[1:])
     )
     sorted_files["prob_vuln"] = sorted_files["prob_vuln"].apply(
         lambda item: f"{item}%"
