@@ -22,14 +22,13 @@ function run() {
             const collectionUri = tl.getInput("collectionUri", true);
             const projectName = tl.getInput("projectName", true);
             const breakPipeline = tl.getInput("breakPipeline", false);
-            /*
-            console.log("request vars");
-            console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
-            console.log(`buildSourceVersion: ${buildSourceVersion}`);
-            console.log(`repositoryId: ${repositoryId}`);
-            console.log(`collectionUri: ${collectionUri}`);
-            console.log(`projectName: ${projectName}`);
-            */
+            const commitRiskLimit = tl.getInput("commitRiskLimit", false);
+            // console.log("request vars");
+            // console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
+            // console.log(`buildSourceVersion: ${buildSourceVersion}`);
+            // console.log(`repositoryId: ${repositoryId}`);
+            // console.log(`collectionUri: ${collectionUri}`);
+            // console.log(`projectName: ${projectName}`);
             const collectionUriSplit = String(collectionUri).split("/");
             const organizationName = collectionUriSplit[collectionUriSplit.length - 2];
             ps.PythonShell.run(__dirname + "/sorts/entrypoint.py", {
@@ -40,7 +39,8 @@ function run() {
                     repositoryId ? repositoryId : '-',
                     buildSourceVersion ? buildSourceVersion : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
-                    breakPipeline ? breakPipeline : ""
+                    breakPipeline ? breakPipeline : "",
+                    commitRiskLimit ? commitRiskLimit : "75"
                 ]
             }, function (err, result) {
                 if (err || result == undefined) {

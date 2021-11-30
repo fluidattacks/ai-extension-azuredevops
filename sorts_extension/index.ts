@@ -12,14 +12,13 @@ async function run() {
         const collectionUri: string | undefined = tl.getInput("collectionUri", true);
         const projectName: string | undefined = tl.getInput("projectName", true);
         const breakPipeline: string | undefined = tl.getInput("breakPipeline", false);
-        /*
-        console.log("request vars");
-        console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
-        console.log(`buildSourceVersion: ${buildSourceVersion}`);
-        console.log(`repositoryId: ${repositoryId}`);
-        console.log(`collectionUri: ${collectionUri}`);
-        console.log(`projectName: ${projectName}`);
-        */
+        const commitRiskLimit: string | undefined = tl.getInput("commitRiskLimit", false);
+        // console.log("request vars");
+        // console.log(`repositoryLocalPath: ${repositoryLocalPath}`);
+        // console.log(`buildSourceVersion: ${buildSourceVersion}`);
+        // console.log(`repositoryId: ${repositoryId}`);
+        // console.log(`collectionUri: ${collectionUri}`);
+        // console.log(`projectName: ${projectName}`);
 
         const collectionUriSplit: string[] | undefined = String(collectionUri).split("/");
         const organizationName: string | undefined = collectionUriSplit[collectionUriSplit.length - 2];
@@ -34,7 +33,8 @@ async function run() {
                     repositoryId ? repositoryId : '-',
                     buildSourceVersion ? buildSourceVersion : '-',
                     repositoryLocalPath ? repositoryLocalPath : '.',
-                    breakPipeline ? breakPipeline : ""
+                    breakPipeline ? breakPipeline : "",
+                    commitRiskLimit ? commitRiskLimit : "75"
                 ]
             },
             function(err, result) {

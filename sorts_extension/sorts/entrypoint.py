@@ -158,7 +158,7 @@ def build_results_csv(
 
 def predict_vuln_prob(
     predict_df: DataFrame, features: List[str], csv_name: str
-) -> None:
+) -> float:
     model = load(get_path("res/model.joblib"))
     input_data = predict_df[model.feature_names + features]
     probability_prediction: ndarray = model.predict_proba(input_data)
@@ -202,7 +202,15 @@ def prepare_sorts(
     return commit_files_df
 
 
-def execute_sorts(files_df: DataFrame, break_pipeline: bool) -> None:
+def display_mean_risk(commit_mean_risk: int, commit_risk_limit: int) -> None:
+    symbols = ["<", ">"]
+    print(
+        f"Mean Risk: {commit_mean_risk} "
+        f"({symbols[commit_mean_risk > commit_risk_limit]} {commit_risk_limit} (limit))"
+    )
+
+
+def execute_sorts(files_df: DataFrame, break_pipeline: bool, commit_risk_limit: int) -> None:
     print("Sorts results")
     if not files_df.empty:
         results_file_name = "sorts_results_file.csv"
@@ -215,8 +223,8 @@ def execute_sorts(files_df: DataFrame, break_pipeline: bool) -> None:
             results_file_name,
         )
         display_results(results_file_name)
-        print(f"Mean Risk: {commit_mean_risk}")
-        if break_pipeline and commit_mean_risk >= COMMIT_RISK_LIMIT:
+        display_mean_risk(commit_mean_risk, commit_risk_limit)
+        if break_pipeline and commit_mean_risk >= commit_risk_limit:
             raise CommitRiskError()
     else:
         print("No files in current commit: dataframe is empty")
@@ -243,6 +251,7 @@ def main():
     commit_id = sys.argv[5]
     repo_local_url = sys.argv[6]
     break_pipeline = sys.argv[7]
+    commit_risk_limit = int(sys.argv[8])
 
     # Get commit files
     commit_file_paths = get_files(
@@ -253,7 +262,7 @@ def main():
     files_df = prepare_sorts(repo_local_url, commit_file_paths)
 
     # Execute Sorts
-    execute_sorts(files_df, break_pipeline)
+    execute_sorts(files_df, break_pipeline, commit_risk_limit)
 
 
 if __name__ == "__main__":
