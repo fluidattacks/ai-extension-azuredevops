@@ -1,3 +1,4 @@
+import argparse
 import base64
 from file import (
     extract_features,
@@ -243,26 +244,33 @@ def get_files(
 
     return paths
 
+def get_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("userpass", type=str)
+    parser.add_argument("organization", type=str)
+    parser.add_argument("project_name", type=str)
+    parser.add_argument("repository_id", type=str)
+    parser.add_argument("commit_id", type=str)
+    parser.add_argument("repo_local_url", type=str)
+    parser.add_argument("break_pipeline", type=str)
+    parser.add_argument("commit_risk_limit", type=int, default=COMMIT_RISK_LIMIT)
+
+    return parser.parse_args()
+
 
 def main():
-    organization = sys.argv[2]
-    project_name = sys.argv[3]
-    repository_id = sys.argv[4]
-    commit_id = sys.argv[5]
-    repo_local_url = sys.argv[6]
-    break_pipeline = sys.argv[7]
-    commit_risk_limit = int(sys.argv[8])
+    args = get_args()
 
     # Get commit files
     commit_file_paths = get_files(
-        organization, project_name, repository_id, commit_id
+        args.organization, args.project_name, args.repository_id, args.commit_id
     )
 
     # Prepare Sorts
-    files_df = prepare_sorts(repo_local_url, commit_file_paths)
+    files_df = prepare_sorts(args.repo_local_url, commit_file_paths)
 
     # Execute Sorts
-    execute_sorts(files_df, break_pipeline, commit_risk_limit)
+    execute_sorts(files_df, args.break_pipeline, args.commit_risk_limit)
 
 
 if __name__ == "__main__":
