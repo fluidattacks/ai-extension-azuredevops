@@ -1,0 +1,42 @@
+{
+    "manifestVersion": 1,
+    "id": "sortsxtensionPRIVATEe2223",
+    "name": "TEST - Fluid Attacks AI AzureDevOps Extension",
+    "help": "help@fluidattacks.com",
+    "version": "0.0.1",
+    "publisher": "FluidAttacks",
+    "content": {
+        "details": {
+            "path": "README.md"
+        }
+    },
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "description": "Sorts extension for Azure DevOps",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/icon.png"
+    },
+    "files": [
+        {
+            "path": "sorts_extension"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "custom-build-release-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "sorts_extension"
+            }
+        }
+    ]
+}
